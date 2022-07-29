@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "lint": "solhint --max-warnings 0 \"contracts/**/*.sol\""
+    "lint": "solhint \"contracts/**/*.sol\""
   },
   "dependencies": {
     "hardhat": "^2.10.1",
