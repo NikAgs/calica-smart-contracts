@@ -9,7 +9,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -20,3 +19,4 @@ jobs:
         node-version: '16.x'
     - run: npm ci
     - run: npm run lint
+    - run: npm run compile

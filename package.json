@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "lint": "solhint \"contracts/**/*.sol\""
+    "lint": "solhint \"contracts/**/*.sol\"",
+    "compile": "npx hardhat compile"
   },
   "dependencies": {
     "hardhat": "^2.10.1",
