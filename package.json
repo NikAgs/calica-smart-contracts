@@ -1,6 +1,10 @@
 {
+  "scripts": {
+    "lint": "solhint --max-warnings 0 \"contracts/**/*.sol\""
+  },
   "dependencies": {
-    "hardhat": "^2.10.1"
+    "hardhat": "^2.10.1",
+    "solhint": "^3.3.7"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^1.0.2"
