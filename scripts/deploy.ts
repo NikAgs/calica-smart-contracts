@@ -1,22 +1,24 @@
-import { ethers } from "hardhat";
+import { upgrades, ethers } from "hardhat";
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-  const unlockTime = currentTimestampInSeconds + ONE_YEAR_IN_SECS;
-
-  const lockedAmount = ethers.utils.parseEther("1");
-
-  const Lock = await ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
-
-  await lock.deployed();
-
-  console.log("Lock with 1 ETH deployed to:", lock.address);
+  console.log("Staging private key:", process.env.STAGING_PRIVATE_KEY);
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
+async function initialize() {
+  const Box = await ethers.getContractFactory('Box');
+  console.log('Deploying Box...');
+  const box = await upgrades.deployProxy(Box, [42], { initializer: 'store' });
+  await box.deployed();
+  console.log('Box deployed to:', box.address);
+}
+
+async function update() {
+  const Box = await ethers.getContractFactory("Box");
+  const box = await upgrades.upgradeProxy("0x2d8B2608Bbbfe80c0cf5580571808a2D97a06177", Box);
+  console.log("Box upgraded");
+}
+
+// Allows using async/await everywhere and properly handling errors.
 main().catch((error) => {
   console.error(error);
   process.exitCode = 1;

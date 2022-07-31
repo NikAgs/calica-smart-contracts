@@ -32,3 +32,8 @@ jobs:
       uses: github/codeql-action/upload-sarif@v2
       with:
         sarif_file: ${{ steps.slither.outputs.sarif }}
+
+    - name: Deploy to Testnet (Mumbai)
+      env:
+        TESTNET_PRIVATE_KEY: ${{ secrets.TESTNET_PRIVATE_KEY }}
+      run: npm run deploy-testnet

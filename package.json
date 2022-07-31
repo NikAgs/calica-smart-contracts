@@ -3,9 +3,13 @@
     "lint": "solhint \"contracts/**/*.sol\"",
     "compile": "npx hardhat compile",
     "test": "npx hardhat test",
-    "coverage": "npx hardhat coverage"
+    "coverage": "npx hardhat coverage",
+    "deploy-testnet": "npx hardhat run scripts/deploy.ts --network mumbai"
   },
   "dependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.1.0",
+    "@openzeppelin/hardhat-upgrades": "^1.19.1",
+    "ethers": "^5.6.9",
     "hardhat": "^2.10.1",
     "solhint": "^3.3.7",
     "solidity-coverage": "^0.7.21"
