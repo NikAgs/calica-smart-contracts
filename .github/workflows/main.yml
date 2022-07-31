@@ -10,6 +10,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+        TESTNET_PRIVATE_KEY: ${{ secrets.TESTNET_PRIVATE_KEY }}
 
     steps:
     - name: Checkout repository
@@ -34,6 +36,4 @@ jobs:
         sarif_file: ${{ steps.slither.outputs.sarif }}
 
     - name: Deploy to Testnet (Mumbai)
-      env:
-        TESTNET_PRIVATE_KEY: ${{ secrets.TESTNET_PRIVATE_KEY }}
       run: npm run deploy-testnet
