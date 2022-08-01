@@ -1,7 +1,8 @@
 import { upgrades, ethers } from "hardhat";
 
 async function main() {
-  console.log("Staging private key:", process.env.STAGING_PRIVATE_KEY);
+  console.log("Staging private key:", process.env.TESTNET_PRIVATE_KEY);
+  await update();
 }
 
 async function initialize() {
