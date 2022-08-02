@@ -1,4 +1,4 @@
-import { expect, assert } from "chai";
+import { expect } from "chai";
 import { ethers } from "hardhat";
 
 describe("RevenueShare", function () {
@@ -18,18 +18,32 @@ describe("RevenueShare", function () {
     await this.revenueShare.deployed();
   });
 
+  it("fails to initialize with an empty split", async function () {
+    try {
+      await this.revenueShare.initialize({
+        name: "Failed Initialize",
+        splits: [],
+      });
+    } catch (e: any) {
+      expect(e.message).to.contain("No splits configured");
+    }
+  });
+
   it("fails when percentages don't add up to 100", async function () {
     try {
-      await this.revenueShare.initialize([
-        {
-          account: this.adam.address,
-          percentage: 80,
-        },
-        {
-          account: this.nik.address,
-          percentage: 90,
-        },
-      ]);
+      await this.revenueShare.initialize({
+        name: "Failed Initialize",
+        splits: [
+          {
+            account: this.adam.address,
+            percentage: 80,
+          },
+          {
+            account: this.nik.address,
+            percentage: 90,
+          },
+        ],
+      });
     } catch (e: any) {
       expect(e.message).to.contain("The sum of percentages must be 100");
     }
@@ -80,16 +94,19 @@ describe("RevenueShare", function () {
   async function initializeValidRevenueShare(
     this: Mocha.Context
   ): Promise<void> {
-    await this.revenueShare.initialize([
-      {
-        account: this.adam.address,
-        percentage: 50,
-      },
-      {
-        account: this.nik.address,
-        percentage: 50,
-      },
-    ]);
+    await this.revenueShare.initialize({
+      name: "Valid Revenue Share",
+      splits: [
+        {
+          account: this.adam.address,
+          percentage: 50,
+        },
+        {
+          account: this.nik.address,
+          percentage: 50,
+        },
+      ],
+    });
   }
 
   // helper function to check the node balance

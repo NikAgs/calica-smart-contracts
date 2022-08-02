@@ -2,22 +2,19 @@
 
 pragma solidity ^0.8.7;
 
+import {Split, RevenueShareInput} from "./globals.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-// import "hardhat/console.sol";
-
-struct Split {
-    address payable account;
-    uint8 percentage;
-}
 
 contract RevenueShare is Initializable {
     Split[] public splits;
 
-    function initialize(Split[] calldata initialSplits) external initializer {
+    function initialize(RevenueShareInput calldata input) external initializer {
+        require(input.splits.length > 0, "No splits configured");
+
         uint8 sum = 0;
-        for (uint8 i = 0; i < initialSplits.length; i++) {
-            sum += initialSplits[i].percentage;
-            splits.push(initialSplits[i]);
+        for (uint8 i = 0; i < input.splits.length; i++) {
+            sum += input.splits[i].percentage;
+            splits.push(input.splits[i]);
         }
         require(sum == 100, "The sum of percentages must be 100");
     }
