@@ -9,7 +9,7 @@ import "@openzeppelin/hardhat-upgrades";
 dotenvConfig({ path: resolve(__dirname, "./.env") });
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.15",
+  solidity: "0.8.7",
   gasReporter: {
     enabled: true,
     currency: "USD",

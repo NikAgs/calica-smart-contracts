@@ -5,41 +5,41 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 env:
   TESTNET_PRIVATE_KEY: ${{ secrets.TESTNET_PRIVATE_KEY }}
 
 jobs:
   build:
-    runs-on: ubuntu-latest  
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-    - name: Use Node.js
-      uses: actions/setup-node@v3
-    - name: 'Create env file'
-      run: |
-        touch .env
-        echo TESTNET_PRIVATE_KEY=${{ secrets.TESTNET_PRIVATE_KEY }} >> .env
-        cat .env
-    - run: npm ci
-    - run: npm run lint
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+      - name: "Create env file"
+        run: |
+          touch .env
+          echo TESTNET_PRIVATE_KEY=${{ secrets.TESTNET_PRIVATE_KEY }} >> .env
+          cat .env
+      - run: npm ci
+      - run: npm run lint
 
-    - run: npm run test
-    - run: npm run coverage
+      - run: npm run coverage
+      - run: npm run test
 
-    - name: Run Slither
-      uses: crytic/slither-action@v0.1.1
-      continue-on-error: true
-      id: slither
-      with:
-        sarif: results.sarif
-    - name: Upload SARIF file
-      uses: github/codeql-action/upload-sarif@v2
-      with:
-        sarif_file: ${{ steps.slither.outputs.sarif }}
+      - name: Run Slither
+        uses: crytic/slither-action@v0.1.1
+        continue-on-error: true
+        id: slither
+        with:
+          sarif: results.sarif
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: ${{ steps.slither.outputs.sarif }}
 
-    - name: Deploy to Testnet (Mumbai)
-      run: npm run deploy-testnet
+      - name: Deploy to Testnet (Mumbai)
+        run: npm run deploy-testnet
