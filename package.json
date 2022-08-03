@@ -4,7 +4,8 @@
     "compile": "npx hardhat compile",
     "test": "npx hardhat test",
     "coverage": "npx hardhat coverage",
-    "deploy-testnet": "npx hardhat run scripts/deploy.ts --network mumbai"
+    "deploy-testnet": "npx hardhat run scripts/deploy.ts --network mumbai",
+    "deploy-local": "npx hardhat run --network localhost scripts/deploy.ts"
   },
   "dependencies": {
     "dotenv": "^16.0.1",

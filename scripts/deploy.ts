@@ -1,13 +1,13 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const RevenueShare = await ethers.getContractFactory("RevenueShare");
-  console.log("Deploying RevenueShare...");
+  const CappedRevenueShare = await ethers.getContractFactory("CappedRevenueShare");
+  console.log("Deploying CappedRevenueShare...");
 
-  let revenueShare = await RevenueShare.deploy();
-  await revenueShare.deployed();
+  let cappedRevenueShare = await CappedRevenueShare.deploy();
+  await cappedRevenueShare.deployed();
 
-  console.log("RevenueShare deployed to:", revenueShare.address);
+  console.log("CappedRevenueShare deployed to:", cappedRevenueShare.address);
 }
 
 // Allows using async/await everywhere and properly handling errors.
