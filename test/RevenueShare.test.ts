@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 
 describe("RevenueShare", function () {
   // Initialize global test variables
@@ -14,6 +14,7 @@ describe("RevenueShare", function () {
 
   // Create a brand new RevenueShare contract before each test
   beforeEach(async function () {
+    await network.provider.send("hardhat_reset");
     this.revenueShare = await this.RevenueShare.deploy();
     await this.revenueShare.deployed();
   });
@@ -29,23 +30,23 @@ describe("RevenueShare", function () {
     }
   });
 
-  it("fails when percentages don't add up to 100", async function () {
+  it("fails when percentages don't add up to 100000", async function () {
     try {
       await this.revenueShare.initialize({
         name: "Failed Initialize",
         splits: [
           {
             account: this.adam.address,
-            percentage: 80,
+            percentage: 80000,
           },
           {
             account: this.nik.address,
-            percentage: 90,
+            percentage: 90000,
           },
         ],
       });
     } catch (e: any) {
-      expect(e.message).to.contain("The sum of percentages must be 100");
+      expect(e.message).to.contain("The sum of percentages must be 100000");
     }
   });
 
@@ -60,6 +61,13 @@ describe("RevenueShare", function () {
     }
   });
 
+  it("sets name correctly", async function () {
+    await initializeValidRevenueShare.bind(this)();
+
+    let name = await this.revenueShare.name();
+    expect(name).to.equal("Valid Revenue Share");
+  });
+
   it("sets splits correctly", async function () {
     await initializeValidRevenueShare.bind(this)();
 
@@ -67,10 +75,10 @@ describe("RevenueShare", function () {
     let secondSplit = await this.revenueShare.splits(1);
 
     expect(firstSplit.account).to.equal(this.adam.address);
-    expect(firstSplit.percentage).to.equal(50);
+    expect(firstSplit.percentage).to.equal(50000);
 
     expect(secondSplit.account).to.equal(this.nik.address);
-    expect(secondSplit.percentage).to.equal(50);
+    expect(secondSplit.percentage).to.equal(50000);
   });
 
   it("distributes funds correctly", async function () {
@@ -99,11 +107,11 @@ describe("RevenueShare", function () {
       splits: [
         {
           account: this.adam.address,
-          percentage: 50,
+          percentage: 50000,
         },
         {
           account: this.nik.address,
-          percentage: 50,
+          percentage: 50000,
         },
       ],
     });

@@ -2,54 +2,79 @@
 
 pragma solidity ^0.8.7;
 
-import {CappedSplit, Split, CappedRevenueShareInput, Payment} from "./globals.sol";
+import {CappedSplit, Split, CappedRevenueShareInput, Payment, MAX_INT} from "./globals.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 contract CappedRevenueShare is Initializable {
-    CappedSplit[] public cappedSplits;
+    CappedSplit[] internal cappedSplits;
     uint256 public amountTransferred = 0;
+    string public name;
 
     function initialize(CappedRevenueShareInput calldata input)
         external
         initializer
     {
-        require(input.cappedSplits.length > 0, "No capped splits configured");
+        require(input.cappedSplits.length > 0, "No capped splits given");
         require(input.cappedSplits[0].cap == 0, "First cap must be 0");
 
-        for (uint8 i = 0; i < input.cappedSplits.length; i++) {
+        name = input.name;
+
+        int256 lastCap = -1;
+        for (uint256 i = 0; i < input.cappedSplits.length; i++) {
+            require(
+                int256(input.cappedSplits[i].cap) > lastCap,
+                "Caps must be sorted and unique"
+            );
             validateSplits(input.cappedSplits[i].splits);
             cappedSplits.push(input.cappedSplits[i]);
+            lastCap = int256(input.cappedSplits[i].cap);
         }
     }
 
-    // Creates a payment band for each cap + 1. For example, if caps are [0, 100, 200] then the bands are
+    function getCappedSplit(uint256 index)
+        external
+        view
+        returns (CappedSplit memory)
+    {
+        return cappedSplits[index];
+    }
+
+    // Creates payment bands for each cap. For example, if caps are [0, 100, 200] then the bands are
     // [0->100], [100->200], [200->MAX_INT]. The amount given is divided among the bands by the given
     // splits and paid out at the end.
     receive() external payable {
-        require(cappedSplits.length > 0, "No splits configured");
+        CappedSplit[] memory memCappedSplits = cappedSplits;
+        require(memCappedSplits.length > 0, "No splits configured");
 
-        uint256 totalAmount = msg.value + amountTransferred;
-        Payment[] memory payments;
-        Split[] memory currentSplits = cappedSplits[0].splits;
-        uint256 previousCap = cappedSplits[0].cap;
+        Split[] memory currentSplits = memCappedSplits[0].splits;
+        Payment[] memory payments = initializePayments(memCappedSplits);
 
-        for (uint8 i = 1; i <= cappedSplits.length; i++) {
-            uint256 rightBand = i == cappedSplits.length
-                ? 2**256 - 1
-                : cappedSplits[i].cap;
+        uint256 memAmountTransferred = amountTransferred;
+        uint256 totalAmount = msg.value + memAmountTransferred;
+        uint256 previousCap = 0;
+
+        for (uint8 i = 1; i <= memCappedSplits.length; i++) {
+            uint256 rightBand = i == memCappedSplits.length
+                ? MAX_INT
+                : memCappedSplits[i].cap;
 
             uint256 bandOverlap = getAmountOverlap(
                 previousCap,
                 rightBand,
+                memAmountTransferred,
                 totalAmount
             );
 
             addPayments(payments, currentSplits, bandOverlap);
-            currentSplits = cappedSplits[i].splits;
-            previousCap = cappedSplits[i].cap;
+
+            if (i < memCappedSplits.length) {
+                currentSplits = memCappedSplits[i].splits;
+                previousCap = memCappedSplits[i].cap;
+            }
         }
 
         payStakeholders(payments);
+
         amountTransferred += msg.value;
     }
 
@@ -57,16 +82,60 @@ contract CappedRevenueShare is Initializable {
     function getAmountOverlap(
         uint256 leftBand,
         uint256 rightBand,
+        uint256 memAmountTransferred,
         uint256 totalAmount
-    ) internal view returns (uint256) {
-        if (amountTransferred >= rightBand || totalAmount <= leftBand) return 0;
+    ) internal pure returns (uint256) {
+        if (memAmountTransferred >= rightBand || totalAmount <= leftBand)
+            return 0;
 
-        uint256 left = amountTransferred <= leftBand
+        uint256 left = memAmountTransferred <= leftBand
             ? leftBand
-            : amountTransferred;
+            : memAmountTransferred;
         uint256 right = totalAmount <= rightBand ? totalAmount : rightBand;
 
         return right - left;
+    }
+
+    // Creates an array of payments with 0 amounts for each unique split address
+    function initializePayments(CappedSplit[] memory memCappedSplits)
+        internal
+        pure
+        returns (Payment[] memory)
+    {
+        uint256 maxNumAccounts;
+        uint256 uniqueAccounts;
+
+        for (uint256 i = 0; i < memCappedSplits.length; i++) {
+            maxNumAccounts += memCappedSplits[i].splits.length;
+        }
+
+        // Arrays in memory must be fixed length
+        Payment[] memory payments = new Payment[](maxNumAccounts);
+
+        for (uint256 i = 0; i < memCappedSplits.length; i++) {
+            for (uint256 j = 0; j < memCappedSplits[i].splits.length; j++) {
+                for (uint256 k = 0; k < payments.length; k++) {
+                    if (payments[k].account == address(0)) {
+                        payments[k] = Payment(
+                            memCappedSplits[i].splits[j].account,
+                            0
+                        );
+                        uniqueAccounts++;
+                        break;
+                    } else if (
+                        payments[k].account ==
+                        memCappedSplits[i].splits[j].account
+                    ) break;
+                }
+            }
+        }
+
+        Payment[] memory trimmedPayments = new Payment[](uniqueAccounts);
+        for (uint256 i = 0; i < uniqueAccounts; i++) {
+            trimmedPayments[i] = payments[i];
+        }
+
+        return trimmedPayments;
     }
 
     // Augments the payments array with the given splits and amount
@@ -77,38 +146,35 @@ contract CappedRevenueShare is Initializable {
     ) internal pure {
         if (amount == 0) return;
 
-        for (uint8 i = 0; i < splits.length; i++) {
+        for (uint256 i = 0; i < splits.length; i++) {
             Payment memory payment;
 
-            for (uint8 j = 0; j < payments.length; j++) {
+            for (uint256 j = 0; j < payments.length; j++) {
                 if (payments[j].account == splits[i].account) {
                     payment = payments[j];
                 }
             }
 
-            // Didn't find a payment in payments for the account
-            if (payment.account == address(0)) {
-                payment = Payment(splits[i].account, 0);
-            }
-
-            payment.amount += (amount * splits[i].percentage) / 100;
+            payment.amount += (amount * splits[i].percentage) / 100000;
         }
     }
 
     function payStakeholders(Payment[] memory payments) public payable {
-        for (uint8 i = 0; i < payments.length; i++) {
-            payments[i].account.transfer(payments[i].amount);
+        for (uint256 i = 0; i < payments.length; i++) {
+            if (payments[i].amount != 0) {
+                payments[i].account.transfer(payments[i].amount);
+            }
         }
     }
 
     function validateSplits(Split[] memory splits) private pure {
-        uint8 sum = 0;
-        for (uint8 i = 0; i < splits.length; i++) {
+        uint256 sum = 0;
+        for (uint256 i = 0; i < splits.length; i++) {
             sum += splits[i].percentage;
         }
         require(
-            sum == 100,
-            "The sum of percentages must be 100 for any given split"
+            sum == 100000,
+            "The sum of percentages must be 100000 for any given split"
         );
     }
 }

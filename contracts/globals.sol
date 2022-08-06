@@ -2,9 +2,11 @@
 
 pragma solidity ^0.8.7;
 
+uint256 constant MAX_INT = 2**256 - 1;
+
 struct Split {
     address payable account;
-    uint8 percentage;
+    uint256 percentage;
 }
 
 struct CappedSplit {
