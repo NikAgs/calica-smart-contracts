@@ -46,7 +46,7 @@ describe("RevenueShare", function () {
         ],
       });
     } catch (e: any) {
-      expect(e.message).to.contain("The sum of percentages must be 100000");
+      expect(e.message).to.contain("The sum of percentages must be 1e5");
     }
   });
 

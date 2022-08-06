@@ -19,7 +19,7 @@ contract RevenueShare is Initializable {
             sum += input.splits[i].percentage;
             splits.push(input.splits[i]);
         }
-        require(sum == 1e5, "The sum of percentages must be 100000");
+        require(sum == 1e5, "The sum of percentages must be 1e5");
     }
 
     receive() external payable {

@@ -53,6 +53,8 @@ contract CappedRevenueShare is Initializable {
         uint256 totalAmount = msg.value + memAmountTransferred;
         uint256 previousCap = 0;
 
+        amountTransferred += msg.value;
+
         for (uint8 i = 1; i <= memCappedSplits.length; i++) {
             uint256 rightBand = i == memCappedSplits.length
                 ? MAX_INT
@@ -74,8 +76,6 @@ contract CappedRevenueShare is Initializable {
         }
 
         payStakeholders(payments);
-
-        amountTransferred += msg.value;
     }
 
     // Determines how much to add to the payments array for the given split band
@@ -172,7 +172,7 @@ contract CappedRevenueShare is Initializable {
         }
         require(
             sum == 1e5,
-            "The sum of percentages must be 100000 for any given split"
+            "The sum of percentages must be 1e5 for any given split"
         );
     }
 }
