@@ -19,7 +19,7 @@ contract RevenueShare is Initializable {
             sum += input.splits[i].percentage;
             splits.push(input.splits[i]);
         }
-        require(sum == 100000, "The sum of percentages must be 100000");
+        require(sum == 1e5, "The sum of percentages must be 100000");
     }
 
     receive() external payable {
@@ -29,7 +29,7 @@ contract RevenueShare is Initializable {
         uint256 amount = msg.value;
         for (uint256 i = 0; i < memSplits.length; i++) {
             memSplits[i].account.transfer(
-                (amount * memSplits[i].percentage) / 100000
+                (amount * memSplits[i].percentage) / 1e5
             );
         }
     }

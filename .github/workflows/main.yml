@@ -41,5 +41,5 @@ jobs:
         with:
           sarif_file: ${{ steps.slither.outputs.sarif }}
 
-      - name: Deploy to Testnet (Mumbai)
-        run: npm run deploy-testnet
+      # - name: Deploy to Testnet (Mumbai)
+      #   run: npm run deploy-testnet

@@ -84,7 +84,7 @@ contract CappedRevenueShare is Initializable {
         uint256 rightBand,
         uint256 memAmountTransferred,
         uint256 totalAmount
-    ) internal pure returns (uint256) {
+    ) private pure returns (uint256) {
         if (memAmountTransferred >= rightBand || totalAmount <= leftBand)
             return 0;
 
@@ -98,12 +98,12 @@ contract CappedRevenueShare is Initializable {
 
     // Creates an array of payments with 0 amounts for each unique split address
     function initializePayments(CappedSplit[] memory memCappedSplits)
-        internal
+        private
         pure
         returns (Payment[] memory)
     {
-        uint256 maxNumAccounts;
-        uint256 uniqueAccounts;
+        uint256 maxNumAccounts = 0;
+        uint256 uniqueAccounts = 0;
 
         for (uint256 i = 0; i < memCappedSplits.length; i++) {
             maxNumAccounts += memCappedSplits[i].splits.length;
@@ -143,23 +143,21 @@ contract CappedRevenueShare is Initializable {
         Payment[] memory payments,
         Split[] memory splits,
         uint256 amount
-    ) internal pure {
+    ) private pure {
         if (amount == 0) return;
 
         for (uint256 i = 0; i < splits.length; i++) {
-            Payment memory payment;
-
             for (uint256 j = 0; j < payments.length; j++) {
                 if (payments[j].account == splits[i].account) {
-                    payment = payments[j];
+                    Payment memory payment = payments[j];
+                    payment.amount += (amount * splits[i].percentage) / 1e5;
+                    break;
                 }
             }
-
-            payment.amount += (amount * splits[i].percentage) / 100000;
         }
     }
 
-    function payStakeholders(Payment[] memory payments) public payable {
+    function payStakeholders(Payment[] memory payments) private {
         for (uint256 i = 0; i < payments.length; i++) {
             if (payments[i].amount != 0) {
                 payments[i].account.transfer(payments[i].amount);
@@ -173,7 +171,7 @@ contract CappedRevenueShare is Initializable {
             sum += splits[i].percentage;
         }
         require(
-            sum == 100000,
+            sum == 1e5,
             "The sum of percentages must be 100000 for any given split"
         );
     }
