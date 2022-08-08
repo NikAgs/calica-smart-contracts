@@ -3,7 +3,7 @@
 pragma solidity ^0.8.7;
 
 import {CappedSplit, Split, CappedRevenueShareInput, Payment, MAX_INT} from "../globals.sol";
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 contract CappedRevenueShare is Initializable {
     CappedSplit[] internal cappedSplits;

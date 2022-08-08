@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.7;
 
-import "@openzeppelin/contracts/proxy/Clones.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -37,7 +37,7 @@ contract RevenueShareFactory is
         );
 
         address payable cloneAddress = payable(
-            Clones.clone(memImplementationAddress)
+            ClonesUpgradeable.clone(memImplementationAddress)
         );
 
         emit ContractDeployed(msg.sender, cloneAddress);

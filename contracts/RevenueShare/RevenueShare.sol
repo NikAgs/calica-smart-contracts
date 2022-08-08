@@ -3,7 +3,7 @@
 pragma solidity ^0.8.7;
 
 import {Split, RevenueShareInput} from "../globals.sol";
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 contract RevenueShare is Initializable {
     Split[] public splits;
