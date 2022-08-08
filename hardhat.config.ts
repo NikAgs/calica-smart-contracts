@@ -23,6 +23,7 @@ const config: HardhatUserConfig = {
 		mumbai: {
 			url: "https://matic-mumbai.chainstacklabs.com",
 			accounts: [process.env["TESTNET_PRIVATE_KEY"] as string],
+			gasMultiplier: 3,
 		},
 	},
 };

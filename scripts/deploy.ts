@@ -1,10 +1,10 @@
 import { ethers, upgrades } from "hardhat";
 
 async function main() {
-	updateContract("RevenueShareFactory",
+	await updateContract("RevenueShareFactory",
 		process.env["TESTNET_REVENUE_SHARE_FACTORY_ADDRESS"] as string);
 
-	updateContract("CappedRevenueShareFactory",
+	await updateContract("CappedRevenueShareFactory",
 		process.env["TESTNET_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS"] as string);
 }
 
