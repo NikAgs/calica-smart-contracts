@@ -36,17 +36,6 @@ describe("CappedRevenueShareFactory", function () {
         }
     });
 
-    it("cannot initialize multiple times", async function () {
-        await this.cappedRevenueShareFactory.initialize();
-
-        try {
-            await this.cappedRevenueShareFactory.initialize();
-        } catch (e: any) {
-            console.log(e);
-            expect(e.message).to.contain("Unprotected upgradeable contract");
-        }
-    });
-
     it("can create a CappedRevenueShare contract and initialize it", async function () {
         await this.cappedRevenueShareFactory.initialize();
 
