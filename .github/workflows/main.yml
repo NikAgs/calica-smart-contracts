@@ -9,6 +9,8 @@ on:
 
 env:
   TESTNET_PRIVATE_KEY: ${{ secrets.TESTNET_PRIVATE_KEY }}
+  TESTNET_REVENUE_SHARE_FACTORY_ADDRESS: ${{ secrets.TESTNET_REVENUE_SHARE_FACTORY_ADDRESS }}
+  TESTNET_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS: ${{ secrets.TESTNET_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS }}
 
 jobs:
   build:
@@ -23,6 +25,8 @@ jobs:
         run: |
           touch .env
           echo TESTNET_PRIVATE_KEY=${{ secrets.TESTNET_PRIVATE_KEY }} >> .env
+		  echo TESTNET_REVENUE_SHARE_FACTORY_ADDRESS=${{ secrets.TESTNET_REVENUE_SHARE_FACTORY_ADDRESS }} >> .env
+		  echo TESTNET_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS=${{ secrets.TESTNET_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS }} >> .env
           cat .env
       - run: npm ci
       - run: npm run lint
@@ -40,5 +44,5 @@ jobs:
         with:
           sarif_file: ${{ steps.slither.outputs.sarif }}
 
-      # - name: Deploy to Testnet (Mumbai)
-      #   run: npm run deploy-testnet
+      - name: Deploy to Testnet (Mumbai)
+        run: npm run deploy-testnet
