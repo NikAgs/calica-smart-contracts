@@ -9,8 +9,6 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {CappedRevenueShare} from "./CappedRevenueShare.sol";
 import {CappedRevenueShareInput} from "../globals.sol";
 
-import "hardhat/console.sol";
-
 contract CappedRevenueShareFactory is
     Initializable,
     UUPSUpgradeable,
@@ -42,12 +40,12 @@ contract CappedRevenueShareFactory is
             Clones.clone(memImplementationAddress)
         );
 
+        emit ContractDeployed(msg.sender, cloneAddress);
+
         CappedRevenueShare cappedRevenueShare = CappedRevenueShare(
             cloneAddress
         );
         cappedRevenueShare.initialize(input);
-
-        emit ContractDeployed(msg.sender, cloneAddress);
 
         return cloneAddress;
     }

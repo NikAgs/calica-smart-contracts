@@ -9,8 +9,6 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {RevenueShare} from "./RevenueShare.sol";
 import {RevenueShareInput} from "../globals.sol";
 
-import "hardhat/console.sol";
-
 contract RevenueShareFactory is
     Initializable,
     UUPSUpgradeable,
@@ -42,10 +40,10 @@ contract RevenueShareFactory is
             Clones.clone(memImplementationAddress)
         );
 
+        emit ContractDeployed(msg.sender, cloneAddress);
+
         RevenueShare revenueShare = RevenueShare(cloneAddress);
         revenueShare.initialize(input);
-
-        emit ContractDeployed(msg.sender, cloneAddress);
 
         return cloneAddress;
     }

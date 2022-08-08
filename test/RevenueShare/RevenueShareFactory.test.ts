@@ -35,6 +35,16 @@ describe("RevenueShareFactory", function () {
         }
     });
 
+    it("cannot initialize multiple times", async function () {
+        await this.revenueShareFactory.initialize();
+
+        try {
+            await this.revenueShareFactory.initialize();
+        } catch (e: any) {
+            expect(e.message).to.contain("Unprotected upgradeable contract");
+        }
+    });
+
     it("can create a RevenueShare contract and initialize it", async function () {
         await this.revenueShareFactory.initialize();
 
