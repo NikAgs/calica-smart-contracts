@@ -25,8 +25,8 @@ jobs:
         run: |
           touch .env
           echo TESTNET_PRIVATE_KEY=${{ secrets.TESTNET_PRIVATE_KEY }} >> .env
-		      echo TESTNET_REVENUE_SHARE_FACTORY_ADDRESS=${{ secrets.TESTNET_REVENUE_SHARE_FACTORY_ADDRESS }} >> .env
-		      echo TESTNET_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS=${{ secrets.TESTNET_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS }} >> .env
+          echo TESTNET_REVENUE_SHARE_FACTORY_ADDRESS=${{ secrets.TESTNET_REVENUE_SHARE_FACTORY_ADDRESS }} >> .env
+          echo TESTNET_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS=${{ secrets.TESTNET_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS }} >> .env
           cat .env
       - run: npm ci
       - run: npm run lint
