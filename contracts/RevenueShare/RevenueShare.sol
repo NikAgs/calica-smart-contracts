@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.7;
 
-import {Split, RevenueShareInput} from "./globals.sol";
+import {Split, RevenueShareInput} from "../globals.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 contract RevenueShare is Initializable {
@@ -19,7 +19,7 @@ contract RevenueShare is Initializable {
             sum += input.splits[i].percentage;
             splits.push(input.splits[i]);
         }
-        require(sum == 1e5, "The sum of percentages must be 1e5");
+        require(sum == 1e5, "Percentages must equal 1e5");
     }
 
     receive() external payable {

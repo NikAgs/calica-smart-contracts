@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.7;
 
-import {CappedSplit, Split, CappedRevenueShareInput, Payment, MAX_INT} from "./globals.sol";
+import {CappedSplit, Split, CappedRevenueShareInput, Payment, MAX_INT} from "../globals.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 contract CappedRevenueShare is Initializable {
@@ -157,6 +157,7 @@ contract CappedRevenueShare is Initializable {
         }
     }
 
+    // Iterates the payments array and transfers the amount to each account
     function payStakeholders(Payment[] memory payments) private {
         for (uint256 i = 0; i < payments.length; i++) {
             if (payments[i].amount != 0) {
@@ -170,9 +171,6 @@ contract CappedRevenueShare is Initializable {
         for (uint256 i = 0; i < splits.length; i++) {
             sum += splits[i].percentage;
         }
-        require(
-            sum == 1e5,
-            "The sum of percentages must be 1e5 for any given split"
-        );
+        require(sum == 1e5, "Percentages must equal 1e5");
     }
 }
