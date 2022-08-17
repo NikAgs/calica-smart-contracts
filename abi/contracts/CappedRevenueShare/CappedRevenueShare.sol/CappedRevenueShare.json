@@ -13,6 +13,31 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "Withdrawal",
+    "type": "event"
+  },
+  {
     "inputs": [],
     "name": "amountTransferred",
     "outputs": [
@@ -26,14 +51,21 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "contractName",
+    "outputs": [
       {
-        "internalType": "uint256",
-        "name": "index",
-        "type": "uint256"
+        "internalType": "string",
+        "name": "",
+        "type": "string"
       }
     ],
-    "name": "getCappedSplit",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getCappedSplits",
     "outputs": [
       {
         "components": [
@@ -44,6 +76,11 @@
           },
           {
             "components": [
+              {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+              },
               {
                 "internalType": "address payable",
                 "name": "account",
@@ -60,9 +97,9 @@
             "type": "tuple[]"
           }
         ],
-        "internalType": "struct CappedSplit",
+        "internalType": "struct CappedSplit[]",
         "name": "",
-        "type": "tuple"
+        "type": "tuple[]"
       }
     ],
     "stateMutability": "view",
@@ -74,7 +111,7 @@
         "components": [
           {
             "internalType": "string",
-            "name": "name",
+            "name": "contractName",
             "type": "string"
           },
           {
@@ -86,6 +123,11 @@
               },
               {
                 "components": [
+                  {
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                  },
                   {
                     "internalType": "address payable",
                     "name": "account",
@@ -110,6 +152,11 @@
         "internalType": "struct CappedRevenueShareInput",
         "name": "input",
         "type": "tuple"
+      },
+      {
+        "internalType": "address",
+        "name": "initOwner",
+        "type": "address"
       }
     ],
     "name": "initialize",
@@ -119,12 +166,12 @@
   },
   {
     "inputs": [],
-    "name": "name",
+    "name": "owner",
     "outputs": [
       {
-        "internalType": "string",
+        "internalType": "address",
         "name": "",
-        "type": "string"
+        "type": "address"
       }
     ],
     "stateMutability": "view",

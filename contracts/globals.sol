@@ -5,6 +5,7 @@ pragma solidity ^0.8.7;
 uint256 constant MAX_INT = 2**256 - 1;
 
 struct Split {
+    string name;
     address payable account;
     uint256 percentage;
 }
@@ -20,11 +21,11 @@ struct Payment {
 }
 
 struct RevenueShareInput {
-    string name;
+    string contractName;
     Split[] splits;
 }
 
 struct CappedRevenueShareInput {
-    string name;
+    string contractName;
     CappedSplit[] cappedSplits;
 }

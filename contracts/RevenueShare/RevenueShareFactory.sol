@@ -16,11 +16,20 @@ contract RevenueShareFactory is
     OwnableUpgradeable
 {
     address public implementationAddress;
-    event ContractDeployed(address indexed owner, address indexed cloneAddress);
+
+    event ContractDeployed(
+        address indexed splitAddress,
+        address indexed cloneAddress,
+        string contractName
+    );
 
     function initialize() external initializer {
         implementationAddress = address(new RevenueShare());
         __Ownable_init();
+    }
+
+    function updateImplementation() external {
+        implementationAddress = address(new RevenueShare());
     }
 
     // solhint-disable-next-line
@@ -41,10 +50,19 @@ contract RevenueShareFactory is
             ClonesUpgradeable.clone(memImplementationAddress)
         );
 
-        emit ContractDeployed(msg.sender, cloneAddress);
+        emit ContractDeployed(msg.sender, cloneAddress, input.contractName);
+        for (uint256 i = 0; i < input.splits.length; i++) {
+            if (msg.sender != input.splits[i].account) {
+                emit ContractDeployed(
+                    input.splits[i].account,
+                    cloneAddress,
+                    input.contractName
+                );
+            }
+        }
 
         RevenueShare revenueShare = RevenueShare(cloneAddress);
-        revenueShare.initialize(input);
+        revenueShare.initialize(input, msg.sender);
 
         return cloneAddress;
     }

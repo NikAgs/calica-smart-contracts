@@ -37,7 +37,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "owner",
+        "name": "splitAddress",
         "type": "address"
       },
       {
@@ -45,6 +45,12 @@
         "internalType": "address",
         "name": "cloneAddress",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "contractName",
+        "type": "string"
       }
     ],
     "name": "ContractDeployed",
@@ -101,7 +107,7 @@
         "components": [
           {
             "internalType": "string",
-            "name": "name",
+            "name": "contractName",
             "type": "string"
           },
           {
@@ -113,6 +119,11 @@
               },
               {
                 "components": [
+                  {
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                  },
                   {
                     "internalType": "address payable",
                     "name": "account",
@@ -212,6 +223,13 @@
       }
     ],
     "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "updateImplementation",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

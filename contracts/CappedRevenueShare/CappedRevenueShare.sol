@@ -8,16 +8,24 @@ import {CappedSplit, Split, CappedRevenueShareInput, Payment, MAX_INT} from "../
 contract CappedRevenueShare is Initializable {
     CappedSplit[] internal cappedSplits;
     uint256 public amountTransferred = 0;
-    string public name;
+    string public contractName;
+    address public owner;
 
-    function initialize(CappedRevenueShareInput calldata input)
-        external
-        initializer
-    {
+    event Withdrawal(
+        uint256 amount,
+        address indexed account,
+        uint256 timestamp
+    );
+
+    function initialize(
+        CappedRevenueShareInput calldata input,
+        address initOwner
+    ) external initializer {
         require(input.cappedSplits.length > 0, "No capped splits given");
         require(input.cappedSplits[0].cap == 0, "First cap must be 0");
 
-        name = input.name;
+        contractName = input.contractName;
+        owner = initOwner;
 
         int256 lastCap = -1;
         for (uint256 i = 0; i < input.cappedSplits.length; i++) {
@@ -31,12 +39,8 @@ contract CappedRevenueShare is Initializable {
         }
     }
 
-    function getCappedSplit(uint256 index)
-        external
-        view
-        returns (CappedSplit memory)
-    {
-        return cappedSplits[index];
+    function getCappedSplits() external view returns (CappedSplit[] memory) {
+        return cappedSplits;
     }
 
     // Creates payment bands for each cap. For example, if caps are [0, 100, 200] then the bands are
@@ -159,8 +163,15 @@ contract CappedRevenueShare is Initializable {
 
     // Iterates the payments array and transfers the amount to each account
     function payStakeholders(Payment[] memory payments) private {
+        uint256 timestamp = block.timestamp;
+
         for (uint256 i = 0; i < payments.length; i++) {
             if (payments[i].amount != 0) {
+                emit Withdrawal(
+                    payments[i].amount,
+                    payments[i].account,
+                    timestamp
+                );
                 payments[i].account.transfer(payments[i].amount);
             }
         }

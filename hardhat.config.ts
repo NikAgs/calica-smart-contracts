@@ -10,7 +10,15 @@ import "hardhat-abi-exporter";
 dotenvConfig({ path: resolve(__dirname, "./.env") });
 
 const config: HardhatUserConfig = {
-	solidity: "0.8.7",
+	solidity: {
+		version: "0.8.7",
+		settings: {
+			optimizer: {
+				enabled: true,
+				runs: 200
+			}
+		}
+	},
 	gasReporter: {
 		enabled: true,
 		currency: "USD",
@@ -23,8 +31,16 @@ const config: HardhatUserConfig = {
 		mumbai: {
 			url: "https://matic-mumbai.chainstacklabs.com",
 			accounts: [process.env["TESTNET_PRIVATE_KEY"] as string],
-			gasMultiplier: 3,
+			gasPrice: 800000000000,
+			gasMultiplier: 5,
+			timeout: 120000,
 		},
+		hardhat: {
+			allowUnlimitedContractSize: true,
+		},
+		localhost: {
+			allowUnlimitedContractSize: true,
+		}
 	},
 };
 

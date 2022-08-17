@@ -6,13 +6,24 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {Split, RevenueShareInput} from "../globals.sol";
 
 contract RevenueShare is Initializable {
-    Split[] public splits;
-    string public name;
+    Split[] internal splits;
+    string public contractName;
+    address public owner;
 
-    function initialize(RevenueShareInput calldata input) external initializer {
+    event Withdrawal(
+        uint256 amount,
+        address indexed account,
+        uint256 timestamp
+    );
+
+    function initialize(RevenueShareInput calldata input, address initOwner)
+        external
+        initializer
+    {
         require(input.splits.length > 0, "No splits configured");
 
-        name = input.name;
+        contractName = input.contractName;
+        owner = initOwner;
 
         uint256 sum = 0;
         for (uint256 i = 0; i < input.splits.length; i++) {
@@ -22,15 +33,21 @@ contract RevenueShare is Initializable {
         require(sum == 1e5, "Percentages must equal 1e5");
     }
 
+    function getSplits() external view returns (Split[] memory) {
+        return splits;
+    }
+
     receive() external payable {
         Split[] memory memSplits = splits;
         require(memSplits.length > 0, "No splits configured");
 
-        uint256 amount = msg.value;
+        uint256 timestamp = block.timestamp;
+
         for (uint256 i = 0; i < memSplits.length; i++) {
-            memSplits[i].account.transfer(
-                (amount * memSplits[i].percentage) / 1e5
-            );
+            uint256 amount = (msg.value * memSplits[i].percentage) / 1e5;
+
+            emit Withdrawal(amount, memSplits[i].account, timestamp);
+            memSplits[i].account.transfer(amount);
         }
     }
 }

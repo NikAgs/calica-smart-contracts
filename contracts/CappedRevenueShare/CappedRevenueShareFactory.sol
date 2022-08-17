@@ -16,11 +16,20 @@ contract CappedRevenueShareFactory is
     OwnableUpgradeable
 {
     address public implementationAddress;
-    event ContractDeployed(address indexed owner, address indexed cloneAddress);
+
+    event ContractDeployed(
+        address indexed splitAddress,
+        address indexed cloneAddress,
+        string contractName
+    );
 
     function initialize() external initializer {
         implementationAddress = address(new CappedRevenueShare());
         __Ownable_init();
+    }
+
+    function updateImplementation() external {
+        implementationAddress = address(new CappedRevenueShare());
     }
 
     // solhint-disable-next-line
@@ -41,13 +50,59 @@ contract CappedRevenueShareFactory is
             ClonesUpgradeable.clone(memImplementationAddress)
         );
 
-        emit ContractDeployed(msg.sender, cloneAddress);
+        emitContractDeployedEvents(cloneAddress, input);
 
         CappedRevenueShare cappedRevenueShare = CappedRevenueShare(
             cloneAddress
         );
-        cappedRevenueShare.initialize(input);
+        cappedRevenueShare.initialize(input, msg.sender);
 
         return cloneAddress;
+    }
+
+    // Loops through all the splits and only emits one ContractDeployed event per unique address encountered.
+    // If only solidity had in-memory sets...
+    function emitContractDeployedEvents(
+        address cloneAddress,
+        CappedRevenueShareInput calldata input
+    ) internal {
+        emit ContractDeployed(msg.sender, cloneAddress, input.contractName);
+
+        uint256 maxNumAccounts = 0;
+        uint256 numUniqueAccounts = 0;
+
+        for (uint256 i = 0; i < input.cappedSplits.length; i++) {
+            maxNumAccounts += input.cappedSplits[i].splits.length;
+        }
+
+        address[] memory uniqueAddresses = new address[](maxNumAccounts);
+
+        for (uint256 i = 0; i < input.cappedSplits.length; i++) {
+            for (uint256 j = 0; j < input.cappedSplits[i].splits.length; j++) {
+                if (msg.sender != input.cappedSplits[i].splits[j].account) {
+                    for (uint256 k = 0; k < uniqueAddresses.length; k++) {
+                        if (uniqueAddresses[k] == address(0)) {
+                            uniqueAddresses[k] = input
+                                .cappedSplits[i]
+                                .splits[j]
+                                .account;
+                            numUniqueAccounts++;
+                            break;
+                        } else if (
+                            uniqueAddresses[k] ==
+                            input.cappedSplits[i].splits[j].account
+                        ) break;
+                    }
+                }
+            }
+        }
+
+        for (uint256 i = 0; i < numUniqueAccounts; i++) {
+            emit ContractDeployed(
+                uniqueAddresses[i],
+                cloneAddress,
+                input.contractName
+            );
+        }
     }
 }
