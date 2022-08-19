@@ -3,18 +3,87 @@ import { ethers, upgrades } from "hardhat";
 async function main() {
     let splits = [
         {
-            name: "Nik",
-            account: "0x99BB44964caEb93bC862a60b89173b934d99bAE7",
-            percentage: 50000
+            name: "Boston Globe",
+            account: "0xAb0279E49891416EADA65e36aE1AEd1A67A15d24",
+            percentage: 30000
         },
         {
-            name: "Adam",
+            name: "Picasso",
             account: "0x12Af066903A962a75959cC915A45Aed26D8DFa44",
-            percentage: 50000
+            percentage: 5000
+        },
+        {
+            name: "Giotto",
+            account: "0x99BB44964caEb93bC862a60b89173b934d99bAE7",
+            percentage: 5000
+        },
+        {
+            name: "Leonardo",
+            account: "0x99BB44964caEb93bC862a60b89173b934d99bAE7",
+            percentage: 5000
+        },
+        {
+            name: "Monet",
+            account: "0x12Af066903A962a75959cC915A45Aed26D8DFa44",
+            percentage: 5000
+        },
+        {
+            name: "Kandinsky",
+            account: "0x12Af066903A962a75959cC915A45Aed26D8DFa44",
+            percentage: 5000
+        },
+        {
+            name: "Rembrandt",
+            account: "0x12Af066903A962a75959cC915A45Aed26D8DFa44",
+            percentage: 5000
+        },
+        {
+            name: "Cézanne",
+            account: "0x12Af066903A962a75959cC915A45Aed26D8DFa44",
+            percentage: 5000
+        },
+        {
+            name: "Velázquez",
+            account: "0x12Af066903A962a75959cC915A45Aed26D8DFa44",
+            percentage: 5000
+        },
+        {
+            name: "Caravaggio",
+            account: "0x12Af066903A962a75959cC915A45Aed26D8DFa44",
+            percentage: 5000
+        },
+        {
+            name: "Van Eyck",
+            account: "0x12Af066903A962a75959cC915A45Aed26D8DFa44",
+            percentage: 5000
+        },
+        {
+            name: "Turner",
+            account: "0x12Af066903A962a75959cC915A45Aed26D8DFa44",
+            percentage: 5000
+        },
+        {
+            name: "Michelangelo",
+            account: "0x12Af066903A962a75959cC915A45Aed26D8DFa44",
+            percentage: 5000
+        },
+        {
+            name: "Goya",
+            account: "0x12Af066903A962a75959cC915A45Aed26D8DFa44",
+            percentage: 5000
+        },
+        {
+            name: "Van Gogh",
+            account: "0x12Af066903A962a75959cC915A45Aed26D8DFa44",
+            percentage: 5000
         }
     ];
 
-    createSimpleRevenueShare("Calica Revenue Split", splits);
+    createSimpleRevenueShare("Boston Globe", splits);
+}
+
+async function sendMoney(address: string) {
+
 }
 
 async function createSimpleRevenueShare(contractName: string, splits: any) {
