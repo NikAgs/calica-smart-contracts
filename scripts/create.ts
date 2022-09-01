@@ -88,7 +88,7 @@ async function sendMoney(address: string) {
 
 async function createSimpleRevenueShare(contractName: string, splits: any) {
     let contractFactory = await ethers.getContractFactory("RevenueShareFactory");
-    let contract = contractFactory.attach(process.env["TESTNET_REVENUE_SHARE_FACTORY_ADDRESS"] as string);
+    let contract = contractFactory.attach(process.env["MUMBAI_REVENUE_SHARE_FACTORY_ADDRESS"] as string);
 
     let input = {
         contractName,
@@ -103,7 +103,7 @@ async function createSimpleRevenueShare(contractName: string, splits: any) {
 
 async function createCappedRevenueShare(name: string, cappedSplits: any) {
     let contractFactory = await ethers.getContractFactory("CappedRevenueShareFactory");
-    let contract = contractFactory.attach(process.env["TESTNET_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS"] as string);
+    let contract = contractFactory.attach(process.env["MUMBAI_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS"] as string);
 }
 
 // Allows using async/await everywhere and properly handling errors.

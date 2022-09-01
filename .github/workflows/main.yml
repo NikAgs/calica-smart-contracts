@@ -20,8 +20,8 @@ jobs:
         run: |
           touch .env
           echo TESTNET_PRIVATE_KEY=${{ secrets.TESTNET_PRIVATE_KEY }} >> .env
-          echo TESTNET_REVENUE_SHARE_FACTORY_ADDRESS=${{ secrets.TESTNET_REVENUE_SHARE_FACTORY_ADDRESS }} >> .env
-          echo TESTNET_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS=${{ secrets.TESTNET_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS }} >> .env
+          echo MUMBAI_REVENUE_SHARE_FACTORY_ADDRESS=${{ secrets.MUMBAI_REVENUE_SHARE_FACTORY_ADDRESS }} >> .env
+          echo MUMBAI_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS=${{ secrets.MUMBAI_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS }} >> .env
           cat .env
       - run: npm ci
       
@@ -41,4 +41,4 @@ jobs:
           sarif_file: ${{ steps.slither.outputs.sarif }}
 
       # - name: Deploy to Testnet (Mumbai)
-      #   run: npm run deploy-testnet
+      #   run: npm run deploy-mumbai

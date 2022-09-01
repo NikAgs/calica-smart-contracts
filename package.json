@@ -6,8 +6,9 @@
     "coverage": "npx hardhat coverage",
     "analyze": "slither .",
     "create": "npx hardhat run scripts/create.ts --network mumbai",
-    "deploy-testnet": "npx hardhat run scripts/deploy.ts --network mumbai",
-    "deploy-local": "npx hardhat run --network localhost scripts/deploy.ts"
+    "deploy-local": "npx hardhat run --network localhost scripts/deploy.ts",
+    "deploy-mumbai": "npx hardhat run scripts/deploy.ts --network mumbai",
+    "deploy-goerli": "npx hardhat run scripts/deploy.ts --network goerli"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.7.2",
