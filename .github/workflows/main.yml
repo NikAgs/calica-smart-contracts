@@ -28,6 +28,8 @@ jobs:
 
           echo MUMBAI_ALCHEMY_URL=${{ secrets.MUMBAI_ALCHEMY_URL }} >> .env
           echo GOERLI_ALCHEMY_URL=${{ secrets.GOERLI_ALCHEMY_URL }} >> .env
+          echo POLYGON_ALCHEMY_URL=${{ secrets.POLYGON_ALCHEMY_URL }} >> .env
+          echo ETHEREUM_ALCHEMY_URL=${{ secrets.ETHEREUM_ALCHEMY_URL }} >> .env
 
           cat .env
       - run: npm ci
