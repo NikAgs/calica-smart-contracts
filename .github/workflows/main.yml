@@ -20,8 +20,15 @@ jobs:
         run: |
           touch .env
           echo TESTNET_PRIVATE_KEY=${{ secrets.TESTNET_PRIVATE_KEY }} >> .env
+
           echo MUMBAI_REVENUE_SHARE_FACTORY_ADDRESS=${{ secrets.MUMBAI_REVENUE_SHARE_FACTORY_ADDRESS }} >> .env
           echo MUMBAI_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS=${{ secrets.MUMBAI_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS }} >> .env
+          echo GOERLI_REVENUE_SHARE_FACTORY_ADDRESS=${{ secrets.GOERLI_REVENUE_SHARE_FACTORY_ADDRESS }} >> .env
+          echo GOERLI_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS=${{ secrets.GOERLI_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS }} >> .env
+
+          echo MUMBAI_ALCHEMY_URL=${{ secrets.MUMBAI_ALCHEMY_URL }} >> .env
+          echo GOERLI_ALCHEMY_URL=${{ secrets.GOERLI_ALCHEMY_URL }} >> .env
+
           cat .env
       - run: npm ci
       
