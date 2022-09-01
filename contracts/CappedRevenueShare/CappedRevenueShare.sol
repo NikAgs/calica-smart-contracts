@@ -23,6 +23,7 @@ contract CappedRevenueShare is Initializable {
     ) external initializer {
         require(input.cappedSplits.length > 0, "No capped splits given");
         require(input.cappedSplits[0].cap == 0, "First cap must be 0");
+        require(initOwner != address(0), "Owner cant be addr(0)");
 
         contractName = input.contractName;
         owner = initOwner;

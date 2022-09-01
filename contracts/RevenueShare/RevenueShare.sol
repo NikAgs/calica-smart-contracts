@@ -21,6 +21,7 @@ contract RevenueShare is Initializable {
         initializer
     {
         require(input.splits.length > 0, "No splits configured");
+        require(initOwner != address(0), "Owner cant be addr(0)");
 
         contractName = input.contractName;
         owner = initOwner;
@@ -42,12 +43,13 @@ contract RevenueShare is Initializable {
         require(memSplits.length > 0, "No splits configured");
 
         uint256 timestamp = block.timestamp;
+        uint256 amount = msg.value;
 
         for (uint256 i = 0; i < memSplits.length; i++) {
-            uint256 amount = (msg.value * memSplits[i].percentage) / 1e5;
+            uint256 withdrawAmount = (amount * memSplits[i].percentage) / 1e5;
 
-            emit Withdrawal(amount, memSplits[i].account, timestamp);
-            memSplits[i].account.transfer(amount);
+            emit Withdrawal(withdrawAmount, memSplits[i].account, timestamp);
+            memSplits[i].account.transfer(withdrawAmount);
         }
     }
 }
