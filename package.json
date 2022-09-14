@@ -8,7 +8,8 @@
     "create": "npx hardhat run scripts/create.ts --network mumbai",
     "deploy-local": "npx hardhat run --network localhost scripts/deploy.ts",
     "deploy-mumbai": "npx hardhat run scripts/deploy.ts --network mumbai",
-    "deploy-goerli": "npx hardhat run scripts/deploy.ts --network goerli"
+    "deploy-goerli": "npx hardhat run scripts/deploy.ts --network goerli",
+    "deploy-ethereum": "npx hardhat run scripts/deploy.ts --network ethereum"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.7.3",
