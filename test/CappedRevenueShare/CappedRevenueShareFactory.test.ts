@@ -63,7 +63,7 @@ describe("CappedRevenueShareFactory", function () {
 
     it("won't create a CappedRevenueShare contract without being initialized", async function () {
         try {
-            await this.cappedRevenueShareFactory.createNewCappedRevenueShare(this.validInput);
+            await this.cappedRevenueShareFactory.createNewCappedRevenueShare(this.validInput, false);
         } catch (e: any) {
             expect(e.message).to.contain("Must be initialized first");
         }
@@ -72,7 +72,7 @@ describe("CappedRevenueShareFactory", function () {
     it("can create a CappedRevenueShare contract and initialize it", async function () {
         await this.cappedRevenueShareFactory.initialize();
 
-        let deployedAddress = await this.cappedRevenueShareFactory.createNewCappedRevenueShare(this.validInput);
+        let deployedAddress = await this.cappedRevenueShareFactory.createNewCappedRevenueShare(this.validInput, false);
         await deployedAddress.wait();
 
         let events = await getLogs(this.cappedRevenueShareFactory.address);
@@ -83,10 +83,30 @@ describe("CappedRevenueShareFactory", function () {
         expect(deployedName).to.equal("Valid Capped Revenue Share");
     });
 
+    it("can create a CappedRevenueShare contract and reconfigure it", async function () {
+        await this.cappedRevenueShareFactory.initialize();
+
+        let deployedAddress = await this.cappedRevenueShareFactory.createNewCappedRevenueShare(this.validInput, true);
+        await deployedAddress.wait();
+
+        let events = await getLogs(this.cappedRevenueShareFactory.address);
+        let cappedRevShareABI = require(path.resolve(__dirname, "../../abi/contracts/CappedRevenueShare/CappedRevenueShare.sol/CappedRevenueShare.json"))
+        let deployedClone = new ethers.Contract(events[0].cloneAddress, cappedRevShareABI, ethers.provider.getSigner());
+
+        let initialSplits = await deployedClone.getCappedSplits();
+
+        await deployedClone.reconfigureCappedSplits(this.validSplitTuple.cappedSplits);
+
+        let reconfiguredSplits = await deployedClone.getCappedSplits();
+
+        expect(initialSplits.length).to.equal(1);
+        expect(reconfiguredSplits.length).to.equal(2);
+    });
+
     it("emits multiple events", async function () {
         await this.cappedRevenueShareFactory.initialize();
 
-        let deployedAddress = await this.cappedRevenueShareFactory.createNewCappedRevenueShare(this.validSplitTuple);
+        let deployedAddress = await this.cappedRevenueShareFactory.createNewCappedRevenueShare(this.validSplitTuple, false);
         await deployedAddress.wait();
 
         let events = await getLogs(this.cappedRevenueShareFactory.address);

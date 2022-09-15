@@ -35,10 +35,10 @@ contract CappedRevenueShareFactory is
     // solhint-disable-next-line
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
-    function createNewCappedRevenueShare(CappedRevenueShareInput calldata input)
-        external
-        returns (address)
-    {
+    function createNewCappedRevenueShare(
+        CappedRevenueShareInput calldata input,
+        bool isReconfigurable
+    ) external returns (address) {
         address memImplementationAddress = implementationAddress;
 
         require(
@@ -55,7 +55,7 @@ contract CappedRevenueShareFactory is
         CappedRevenueShare cappedRevenueShare = CappedRevenueShare(
             cloneAddress
         );
-        cappedRevenueShare.initialize(input, msg.sender);
+        cappedRevenueShare.initialize(input, msg.sender, isReconfigurable);
 
         return cloneAddress;
     }
