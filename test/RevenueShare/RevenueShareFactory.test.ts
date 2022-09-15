@@ -46,7 +46,7 @@ describe("RevenueShareFactory", function () {
 
     it("won't create a RevenueShare contract without being initialized", async function () {
         try {
-            await this.revenueShareFactory.createNewRevenueShare(this.validInput);
+            await this.revenueShareFactory.createNewRevenueShare(this.validInput, false);
         } catch (e: any) {
             expect(e.message).to.contain("Must be initialized first");
         }
@@ -55,7 +55,7 @@ describe("RevenueShareFactory", function () {
     it("can create a RevenueShare contract and initialize it", async function () {
         await this.revenueShareFactory.initialize();
 
-        let deployedAddress = await this.revenueShareFactory.createNewRevenueShare(this.validInput);
+        let deployedAddress = await this.revenueShareFactory.createNewRevenueShare(this.validInput, false);
         await deployedAddress.wait();
 
         let events = await getLogs(this.revenueShareFactory.address);
@@ -66,10 +66,30 @@ describe("RevenueShareFactory", function () {
         expect(deployedName).to.equal("Valid Revenue Share");
     });
 
+    it("can create a RevenueShare contract and reconfigure it", async function () {
+        await this.revenueShareFactory.initialize();
+
+        let deployedAddress = await this.revenueShareFactory.createNewRevenueShare(this.validInput, true);
+        await deployedAddress.wait();
+
+        let events = await getLogs(this.revenueShareFactory.address);
+        let revShareABI = require(path.resolve(__dirname, "../../abi/contracts/RevenueShare/RevenueShare.sol/RevenueShare.json"))
+        let deployedClone = new ethers.Contract(events[0].cloneAddress, revShareABI, ethers.provider.getSigner());
+
+        let initialSplits = await deployedClone.getSplits();
+
+        await deployedClone.reconfigureSplits(this.validSplitTuple.splits);
+
+        let reconfiguredSplits = await deployedClone.getSplits();
+
+        expect(initialSplits.length).to.equal(1);
+        expect(reconfiguredSplits.length).to.equal(2);
+    });
+
     it("can emit a correct event", async function () {
         await this.revenueShareFactory.initialize();
 
-        let deployedAddress = await this.revenueShareFactory.createNewRevenueShare(this.validInput);
+        let deployedAddress = await this.revenueShareFactory.createNewRevenueShare(this.validInput, false);
         await deployedAddress.wait();
 
         let events = await getLogs(this.revenueShareFactory.address);
@@ -86,7 +106,7 @@ describe("RevenueShareFactory", function () {
     it("emits multiple events", async function () {
         await this.revenueShareFactory.initialize();
 
-        let deployedAddress = await this.revenueShareFactory.createNewRevenueShare(this.validSplitTuple);
+        let deployedAddress = await this.revenueShareFactory.createNewRevenueShare(this.validSplitTuple, false);
         await deployedAddress.wait();
 
         let events = await getLogs(this.revenueShareFactory.address);

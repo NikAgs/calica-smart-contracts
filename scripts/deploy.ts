@@ -4,15 +4,17 @@ import { ethers, upgrades, hardhatArguments } from "hardhat";
 async function main() {
 	let network = hardhatArguments.network?.toUpperCase() as string;
 
-	await updateContract("RevenueShareFactory",
-		process.env[`${network}_REVENUE_SHARE_FACTORY_ADDRESS`] as string, network);
+	await deployContract("RevenueShareFactory", network);
 
-	await updateImplementation("RevenueShareFactory", process.env[`${network}_REVENUE_SHARE_FACTORY_ADDRESS`] as string, network);
+	// await updateContract("RevenueShareFactory",
+	// 	process.env[`${network}_REVENUE_SHARE_FACTORY_ADDRESS`] as string, network);
 
-	await updateContract("CappedRevenueShareFactory",
-		process.env[`${network}_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS`] as string, network);
+	// await updateImplementation("RevenueShareFactory", process.env[`${network}_REVENUE_SHARE_FACTORY_ADDRESS`] as string, network);
 
-	await updateImplementation("CappedRevenueShareFactory", process.env[`${network}_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS`] as string, network);
+	// await updateContract("CappedRevenueShareFactory",
+	// 	process.env[`${network}_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS`] as string, network);
+
+	// await updateImplementation("CappedRevenueShareFactory", process.env[`${network}_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS`] as string, network);
 }
 
 async function updateContract(name: string, address: string, network: string) {
@@ -38,6 +40,8 @@ async function updateImplementation(name: string, address: string, network: stri
 	let contract = contractFactory.attach(address);
 
 	await contract.updateImplementation();
+	await contract.deployed();
+
 	console.log(`Implementation successfully updated\n`);
 }
 

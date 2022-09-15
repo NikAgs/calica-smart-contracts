@@ -148,6 +148,11 @@
         "internalType": "struct CappedRevenueShareInput",
         "name": "input",
         "type": "tuple"
+      },
+      {
+        "internalType": "bool",
+        "name": "isReconfigurable",
+        "type": "bool"
       }
     ],
     "name": "createNewCappedRevenueShare",
