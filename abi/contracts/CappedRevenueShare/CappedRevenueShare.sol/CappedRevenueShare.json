@@ -157,6 +157,11 @@
         "internalType": "address",
         "name": "initOwner",
         "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "initIsReconfigurable",
+        "type": "bool"
       }
     ],
     "name": "initialize",
@@ -175,6 +180,48 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "cap",
+            "type": "uint256"
+          },
+          {
+            "components": [
+              {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "internalType": "address payable",
+                "name": "account",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "percentage",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct Split[]",
+            "name": "splits",
+            "type": "tuple[]"
+          }
+        ],
+        "internalType": "struct CappedSplit[]",
+        "name": "newCappedSplits",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "reconfigureCappedSplits",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

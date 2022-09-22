@@ -29,9 +29,26 @@ const config: HardhatUserConfig = {
 	},
 	networks: {
 		mumbai: {
-			url: "https://matic-mumbai.chainstacklabs.com",
+			url: process.env["MUMBAI_ALCHEMY_URL"] as string,
 			accounts: [process.env["TESTNET_PRIVATE_KEY"] as string],
-			gasPrice: 800000000000,
+			gasMultiplier: 5,
+			timeout: 120000,
+		},
+		goerli: {
+			url: process.env["GOERLI_ALCHEMY_URL"] as string,
+			accounts: [process.env["TESTNET_PRIVATE_KEY"] as string],
+			gasMultiplier: 5,
+			timeout: 120000,
+		},
+		ethereum: {
+			url: process.env["ETHEREUM_ALCHEMY_URL"] as string,
+			accounts: [process.env["TESTNET_PRIVATE_KEY"] as string],
+			gasMultiplier: 2,
+			timeout: 120000,
+		},
+		matic: {
+			url: process.env["POLYGON_ALCHEMY_URL"] as string,
+			accounts: [process.env["TESTNET_PRIVATE_KEY"] as string],
 			gasMultiplier: 5,
 			timeout: 120000,
 		},

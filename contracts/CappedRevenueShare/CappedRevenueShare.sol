@@ -7,6 +7,8 @@ import {CappedSplit, Split, CappedRevenueShareInput, Payment, MAX_INT} from "../
 
 contract CappedRevenueShare is Initializable {
     CappedSplit[] internal cappedSplits;
+    bool internal isReconfigurable;
+
     uint256 public amountTransferred = 0;
     string public contractName;
     address public owner;
@@ -19,28 +21,48 @@ contract CappedRevenueShare is Initializable {
 
     function initialize(
         CappedRevenueShareInput calldata input,
-        address initOwner
+        address initOwner,
+        bool initIsReconfigurable
     ) external initializer {
         require(input.cappedSplits.length > 0, "No capped splits given");
         require(input.cappedSplits[0].cap == 0, "First cap must be 0");
+        require(initOwner != address(0), "Owner cant be addr(0)");
 
         contractName = input.contractName;
         owner = initOwner;
+        isReconfigurable = initIsReconfigurable;
 
+        validateAndUpdateCappedSplits(input.cappedSplits);
+    }
+
+    function validateAndUpdateCappedSplits(
+        CappedSplit[] calldata newCappedSplits
+    ) internal {
         int256 lastCap = -1;
-        for (uint256 i = 0; i < input.cappedSplits.length; i++) {
+        for (uint256 i = 0; i < newCappedSplits.length; i++) {
             require(
-                int256(input.cappedSplits[i].cap) > lastCap,
+                int256(newCappedSplits[i].cap) > lastCap,
                 "Caps must be sorted and unique"
             );
-            validateSplits(input.cappedSplits[i].splits);
-            cappedSplits.push(input.cappedSplits[i]);
-            lastCap = int256(input.cappedSplits[i].cap);
+            validateSplits(newCappedSplits[i].splits);
+            cappedSplits.push(newCappedSplits[i]);
+            lastCap = int256(newCappedSplits[i].cap);
         }
     }
 
     function getCappedSplits() external view returns (CappedSplit[] memory) {
         return cappedSplits;
+    }
+
+    function reconfigureCappedSplits(CappedSplit[] calldata newCappedSplits)
+        external
+    {
+        require(isReconfigurable, "Contract isnt reconfigurable");
+        require(msg.sender == owner, "Only owner can reconfigure");
+
+        delete cappedSplits;
+
+        validateAndUpdateCappedSplits(newCappedSplits);
     }
 
     // Creates payment bands for each cap. For example, if caps are [0, 100, 200] then the bands are
@@ -163,6 +185,7 @@ contract CappedRevenueShare is Initializable {
 
     // Iterates the payments array and transfers the amount to each account
     function payStakeholders(Payment[] memory payments) private {
+        // solhint-disable-next-line
         uint256 timestamp = block.timestamp;
 
         for (uint256 i = 0; i < payments.length; i++) {
@@ -172,7 +195,10 @@ contract CappedRevenueShare is Initializable {
                     payments[i].account,
                     timestamp
                 );
-                payments[i].account.transfer(payments[i].amount);
+                (bool sent, ) = payments[i].account.call{
+                    value: payments[i].amount
+                }("");
+                require(sent, "Failed to transfer");
             }
         }
     }

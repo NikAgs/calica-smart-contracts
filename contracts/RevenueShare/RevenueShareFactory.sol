@@ -35,10 +35,10 @@ contract RevenueShareFactory is
     // solhint-disable-next-line
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
-    function createNewRevenueShare(RevenueShareInput calldata input)
-        external
-        returns (address)
-    {
+    function createNewRevenueShare(
+        RevenueShareInput calldata input,
+        bool isReconfigurable
+    ) external returns (address) {
         address memImplementationAddress = implementationAddress;
 
         require(
@@ -62,7 +62,7 @@ contract RevenueShareFactory is
         }
 
         RevenueShare revenueShare = RevenueShare(cloneAddress);
-        revenueShare.initialize(input, msg.sender);
+        revenueShare.initialize(input, msg.sender, isReconfigurable);
 
         return cloneAddress;
     }

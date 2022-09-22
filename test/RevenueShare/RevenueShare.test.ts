@@ -26,7 +26,7 @@ describe("RevenueShare", function () {
 			await this.revenueShare.initialize({
 				contractName: "Failed Initialize",
 				splits: [],
-			}, this.owner.address);
+			}, this.owner.address, false);
 		} catch (e: any) {
 			expect(e.message).to.contain("No splits configured");
 		}
@@ -48,7 +48,7 @@ describe("RevenueShare", function () {
 						percentage: 90000,
 					},
 				],
-			}, this.owner.address);
+			}, this.owner.address, false);
 		} catch (e: any) {
 			expect(e.message).to.contain("Percentages must equal 1e5");
 		}
@@ -62,6 +62,52 @@ describe("RevenueShare", function () {
 			});
 		} catch (e: any) {
 			expect(e.message).to.contain("No splits configured");
+		}
+	});
+
+	it("fails when trying to reconfigure before being initialized", async function () {
+		try {
+			await this.revenueShare.reconfigureSplits([
+				{
+					name: "Adam",
+					account: this.adam.address,
+					percentage: 100000,
+				}
+			]);
+		} catch (e: any) {
+			expect(e.message).to.contain("Contract isnt reconfigurable");
+		}
+	});
+
+	it("fails to reconfigure splits when flag is set to false", async function () {
+		try {
+			await initializeValidRevenueShare.bind(this)();
+
+			await this.revenueShare.reconfigureSplits([
+				{
+					name: "Adam",
+					account: this.adam.address,
+					percentage: 100000,
+				}
+			]);
+		} catch (e: any) {
+			expect(e.message).to.contain("Contract isnt reconfigurable");
+		}
+	});
+
+	it("fails to reconfigure when non-owner calls it", async function () {
+		try {
+			await initializeValidRevenueShare.bind(this, true)();
+
+			await this.revenueShare.connect(this.adam).reconfigureSplits([
+				{
+					name: "Adam",
+					account: this.adam.address,
+					percentage: 100000,
+				}
+			]);
+		} catch (e: any) {
+			expect(e.message).to.contain("Only owner can reconfigure");
 		}
 	});
 
@@ -91,6 +137,29 @@ describe("RevenueShare", function () {
 
 		expect(secondSplit.account).to.equal(this.nik.address);
 		expect(secondSplit.percentage).to.equal(50000);
+	});
+
+	it("can reconfigure splits correctly", async function () {
+		await initializeValidRevenueShare.bind(this, true)();
+
+		let initialSplits = await this.revenueShare.getSplits();
+
+		await this.revenueShare.connect(this.owner).reconfigureSplits([
+			{
+				name: "Adam",
+				account: this.adam.address,
+				percentage: 100000,
+			}
+		]);
+
+		let reconfiguredSplits = await this.revenueShare.getSplits();
+
+		expect(initialSplits.length).to.equal(2);
+
+		expect(reconfiguredSplits.length).to.equal(1);
+		expect(reconfiguredSplits[0].name).to.equal("Adam");
+		expect(reconfiguredSplits[0].account).to.equal(this.adam.address);
+		expect(reconfiguredSplits[0].percentage).to.equal(100000);
 	});
 
 	it("gets splits correctly", async function () {
@@ -146,9 +215,10 @@ describe("RevenueShare", function () {
 
 	// helper function to set up a 50/50 split
 	async function initializeValidRevenueShare(
-		this: Mocha.Context
+		this: Mocha.Context,
+		reconfigurable: boolean = false,
 	): Promise<void> {
-		await this.revenueShare.initialize({
+		await this.revenueShare.connect(this.owner).initialize({
 			contractName: "Valid Revenue Share",
 			splits: [
 				{
@@ -162,7 +232,7 @@ describe("RevenueShare", function () {
 					percentage: 50000,
 				},
 			],
-		}, this.owner.address);
+		}, this.owner.address, reconfigurable);
 	}
 });
 

@@ -31,6 +31,15 @@ struct CappedRevenueShareInput {
 }
 
 struct Expense {
-    string contractName;
+    string name;
     address payable account;
+    uint256 cost;
+    uint256 amountPaid;
+    uint256 timestamp;
+}
+
+struct ExpenseSubmissionInput {
+    string contractName;
+    Expense[] expenses;
+    address payable profitAddress;
 }
