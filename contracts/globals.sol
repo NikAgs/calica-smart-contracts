@@ -29,3 +29,8 @@ struct CappedRevenueShareInput {
     string contractName;
     CappedSplit[] cappedSplits;
 }
+
+struct Expense {
+    string contractName;
+    address payable account;
+}
