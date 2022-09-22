@@ -4,6 +4,7 @@ pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {Expense, ExpenseSubmissionInput} from "../globals.sol";
+import "hardhat/console.sol";
 
 contract ExpenseSubmission is Initializable {
     Expense[] internal expenses;
@@ -40,6 +41,7 @@ contract ExpenseSubmission is Initializable {
     }
 
     function reconfigureExpenses(Expense[] calldata newExpenses) external {
+        require(profitAddress != address(0), "Profit address not set");
         require(msg.sender == owner, "Only owner can reconfigure");
 
         delete expenses;
@@ -52,20 +54,22 @@ contract ExpenseSubmission is Initializable {
     }
 
     receive() external payable {
-        Expense[] memory memExpenses = expenses;
+        require(profitAddress != address(0), "Profit address not set");
 
         // solhint-disable-next-line
         uint256 timestamp = block.timestamp;
         uint256 amount = msg.value;
+        Expense[] memory memExpenses = expenses;
 
         for (uint256 i = 0; i < memExpenses.length && amount > 0; i++) {
-            uint256 amountOwed = memExpenses[i].amountPaid -
-                memExpenses[i].cost;
+            uint256 amountOwed = memExpenses[i].cost -
+                memExpenses[i].amountPaid;
 
             if (amountOwed > 0) {
                 uint256 amountToPay = amountOwed > amount ? amount : amountOwed;
 
                 emit Withdrawal(amountToPay, memExpenses[i].account, timestamp);
+
                 expenses[i].amountPaid += amountToPay;
 
                 (bool sent, ) = memExpenses[i].account.call{value: amountToPay}(

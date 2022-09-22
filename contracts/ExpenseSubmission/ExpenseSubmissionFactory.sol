@@ -35,7 +35,7 @@ contract ExpenseSubmissionFactory is
     // solhint-disable-next-line
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
-    function createNewExpenseSubmission(ExpenseInput calldata input)
+    function createNewExpenseSubmission(ExpenseSubmissionInput calldata input)
         external
         returns (address)
     {
@@ -65,20 +65,28 @@ contract ExpenseSubmissionFactory is
         ExpenseSubmissionInput calldata input
     ) internal {
         emit ContractDeployed(msg.sender, cloneAddress, input.contractName);
+        emit ContractDeployed(
+            input.profitAddress,
+            cloneAddress,
+            input.contractName
+        );
 
         uint256 numUniqueAccounts = 0;
         address[] memory uniqueAddresses = new address[](input.expenses.length);
 
         for (uint256 i = 0; i < input.expenses.length; i++) {
-            if (msg.sender != input.expenses[i].account) {
-                for (uint256 k = 0; k < uniqueAddresses.length; k++) {
-                    if (uniqueAddresses[k] == address(0)) {
-                        uniqueAddresses[k] = input.expenses[i].account;
-                        numUniqueAccounts++;
-                        break;
-                    } else if (uniqueAddresses[k] == input.expenses[i].account)
-                        break;
-                }
+            if (
+                msg.sender == input.expenses[i].account ||
+                input.profitAddress == input.expenses[i].account
+            ) continue;
+
+            for (uint256 k = 0; k < uniqueAddresses.length; k++) {
+                if (uniqueAddresses[k] == address(0)) {
+                    uniqueAddresses[k] = input.expenses[i].account;
+                    numUniqueAccounts++;
+                    break;
+                } else if (uniqueAddresses[k] == input.expenses[i].account)
+                    break;
             }
         }
 

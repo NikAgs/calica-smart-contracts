@@ -51,5 +51,3 @@ jobs:
 
       - name: Deploy to Mumbai Testnet
         run: npm run deploy-mumbai
-      - name: Deploy to Goerli Testnet
-        run: npm run deploy-goerli
