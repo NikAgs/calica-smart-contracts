@@ -4,7 +4,6 @@ pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {Expense, ExpenseSubmissionInput} from "../globals.sol";
-import "hardhat/console.sol";
 
 contract ExpenseSubmission is Initializable {
     Expense[] internal expenses;
@@ -72,10 +71,10 @@ contract ExpenseSubmission is Initializable {
 
                 expenses[i].amountPaid += amountToPay;
 
-                (bool sent, ) = memExpenses[i].account.call{value: amountToPay}(
-                    ""
-                );
-                require(sent, "Failed to transfer");
+                (bool expenseReiumbursed, ) = memExpenses[i].account.call{
+                    value: amountToPay
+                }("");
+                require(expenseReiumbursed, "Failed to transfer");
 
                 amount -= amountToPay;
             }
@@ -83,8 +82,8 @@ contract ExpenseSubmission is Initializable {
 
         if (amount > 0) {
             emit Withdrawal(amount, profitAddress, timestamp);
-            (bool sent, ) = profitAddress.call{value: amount}("");
-            require(sent, "Failed to transfer");
+            (bool profitDistributed, ) = profitAddress.call{value: amount}("");
+            require(profitDistributed, "Failed to transfer");
         }
     }
 }

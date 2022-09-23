@@ -4,24 +4,24 @@ import { ethers, upgrades, hardhatArguments } from "hardhat";
 async function main() {
   let network = hardhatArguments.network?.toUpperCase() as string;
 
-  await updateContract("RevenueShareFactory",
-    process.env[`${network}_REVENUE_SHARE_FACTORY_ADDRESS`] as string, network);
-  await new Promise((resolve) => setTimeout(resolve, 3000));
-  await updateImplementation("RevenueShareFactory", process.env[`${network}_REVENUE_SHARE_FACTORY_ADDRESS`] as string, network);
+  // await deployContract("ExpenseSubmissionFactory", network);
 
-  await new Promise((resolve) => setTimeout(resolve, 3000));
+  // await updateContract("RevenueShareFactory",
+  //   process.env[`${network}_REVENUE_SHARE_FACTORY_ADDRESS`] as string, network);
+  // await new Promise((resolve) => setTimeout(resolve, 3000));
+  // await updateImplementation("RevenueShareFactory", process.env[`${network}_REVENUE_SHARE_FACTORY_ADDRESS`] as string, network);
 
-  await updateContract("CappedRevenueShareFactory",
-    process.env[`${network}_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS`] as string, network);
-  await new Promise((resolve) => setTimeout(resolve, 3000));
-  await updateImplementation("CappedRevenueShareFactory", process.env[`${network}_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS`] as string, network);
+  // await new Promise((resolve) => setTimeout(resolve, 3000));
 
-  await new Promise((resolve) => setTimeout(resolve, 3000));
+  // await updateContract("CappedRevenueShareFactory",
+  //   process.env[`${network}_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS`] as string, network);
+  // await new Promise((resolve) => setTimeout(resolve, 3000));
+  // await updateImplementation("CappedRevenueShareFactory", process.env[`${network}_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS`] as string, network);
+
+  // await new Promise((resolve) => setTimeout(resolve, 3000));
 
   await updateContract("ExpenseSubmissionFactory",
     process.env[`${network}_EXPENSE_SUBMISSION_FACTORY_ADDRESS`] as string, network);
-  await new Promise((resolve) => setTimeout(resolve, 3000));
-  await updateImplementation("ExpenseSubmissionFactory", process.env[`${network}_EXPENSE_SUBMISSION_FACTORY_ADDRESS`] as string, network);
 }
 
 async function updateContract(name: string, address: string, network: string) {
@@ -35,7 +35,12 @@ async function updateContract(name: string, address: string, network: string) {
     console.log("Force import necessary");
   } catch (err) { }
 
-  await upgrades.upgradeProxy(address, contract);
+  await upgrades.upgradeProxy(address, contract, {
+    call: {
+      fn: "updateImplementation",
+      args: []
+    }
+  });
 
   console.log(`${name} was successfully upgraded\n`);
 }
@@ -62,7 +67,9 @@ async function deployContract(name: string, network: string) {
   console.log(`Deploying ${name} on ${network}...`);
 
   let contract = await ethers.getContractFactory(name);
-  let instance = await upgrades.deployProxy(contract);
+  let instance = await upgrades.deployProxy(contract, [], {
+    initializer: "initialize",
+  });
   await instance.deployed();
 
   console.log(`${name} deployed to: ${instance.address}`);
