@@ -50,20 +50,6 @@ contract ExpenseSubmissionFactory is
             ClonesUpgradeable.clone(memImplementationAddress)
         );
 
-        emitContractDeployedEvents(cloneAddress, input);
-
-        ExpenseSubmission expense = ExpenseSubmission(cloneAddress);
-        expense.initialize(input, msg.sender);
-
-        return cloneAddress;
-    }
-
-    // Loops through all the expenses and only emits one ContractDeployed event per unique address encountered.
-    // If only solidity had in-memory sets...
-    function emitContractDeployedEvents(
-        address cloneAddress,
-        ExpenseSubmissionInput calldata input
-    ) internal {
         emit ContractDeployed(msg.sender, cloneAddress, input.contractName);
         emit ContractDeployed(
             input.profitAddress,
@@ -71,31 +57,9 @@ contract ExpenseSubmissionFactory is
             input.contractName
         );
 
-        uint256 numUniqueAccounts = 0;
-        address[] memory uniqueAddresses = new address[](input.expenses.length);
+        ExpenseSubmission expense = ExpenseSubmission(cloneAddress);
+        expense.initialize(input, msg.sender);
 
-        for (uint256 i = 0; i < input.expenses.length; i++) {
-            if (
-                msg.sender == input.expenses[i].account ||
-                input.profitAddress == input.expenses[i].account
-            ) continue;
-
-            for (uint256 k = 0; k < uniqueAddresses.length; k++) {
-                if (uniqueAddresses[k] == address(0)) {
-                    uniqueAddresses[k] = input.expenses[i].account;
-                    numUniqueAccounts++;
-                    break;
-                } else if (uniqueAddresses[k] == input.expenses[i].account)
-                    break;
-            }
-        }
-
-        for (uint256 i = 0; i < numUniqueAccounts; i++) {
-            emit ContractDeployed(
-                uniqueAddresses[i],
-                cloneAddress,
-                input.contractName
-            );
-        }
+        return cloneAddress;
     }
 }

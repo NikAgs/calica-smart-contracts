@@ -109,10 +109,9 @@ describe("ExpenseSubmissionFactory", function () {
 
         let events = await getLogs(this.expenseSubmissionFactory.address);
         let deployAddress = (await ethers.getSigners())[0].address;
-        let firstAccount = (await ethers.getSigners())[1].address;
         let profitAddress = (await ethers.getSigners())[2].address;
 
-        expect(events.length).to.equal(3);
+        expect(events.length).to.equal(2);
 
         // msg.sender
         expect(events[0].cloneAddress).to.not.equal("0x0000000000000000000000000000000000000000");
@@ -125,15 +124,9 @@ describe("ExpenseSubmissionFactory", function () {
         expect(ethers.utils.isAddress(events[1].cloneAddress)).to.be.true;
         expect(events[1].splitAddress).to.equal(profitAddress);
         expect(events[1].contractName).to.equal("Valid Expense Submission");
-
-        // first expense
-        expect(events[2].cloneAddress).to.not.equal("0x0000000000000000000000000000000000000000");
-        expect(ethers.utils.isAddress(events[2].cloneAddress)).to.be.true;
-        expect(events[2].splitAddress).to.equal(firstAccount);
-        expect(events[2].contractName).to.equal("Valid Expense Submission");
     });
 
-    it("doesn't duplicate events for multiple addresses", async function () {
+    it("sends correct events for multiple addresses", async function () {
         await this.expenseSubmissionFactory.initialize();
 
         let deployedAddress = await this.expenseSubmissionFactory.createNewExpenseSubmission(this.validTripleExpense);
@@ -141,11 +134,9 @@ describe("ExpenseSubmissionFactory", function () {
 
         let events = await getLogs(this.expenseSubmissionFactory.address);
         let deployAddress = (await ethers.getSigners())[0].address;
-        let firstAccount = (await ethers.getSigners())[1].address;
-        let secondAccount = (await ethers.getSigners())[2].address;
         let profitAddress = (await ethers.getSigners())[3].address;
 
-        expect(events.length).to.equal(4);
+        expect(events.length).to.equal(2);
 
         // msg.sender
         expect(events[0].cloneAddress).to.not.equal("0x0000000000000000000000000000000000000000");
@@ -158,18 +149,6 @@ describe("ExpenseSubmissionFactory", function () {
         expect(ethers.utils.isAddress(events[1].cloneAddress)).to.be.true;
         expect(events[1].splitAddress).to.equal(profitAddress);
         expect(events[1].contractName).to.equal("Valid Expense Submission 2");
-
-        // first expense
-        expect(events[2].cloneAddress).to.not.equal("0x0000000000000000000000000000000000000000");
-        expect(ethers.utils.isAddress(events[2].cloneAddress)).to.be.true;
-        expect(events[2].splitAddress).to.equal(firstAccount);
-        expect(events[2].contractName).to.equal("Valid Expense Submission 2");
-
-        // second expense
-        expect(events[3].cloneAddress).to.not.equal("0x0000000000000000000000000000000000000000");
-        expect(ethers.utils.isAddress(events[3].cloneAddress)).to.be.true;
-        expect(events[3].splitAddress).to.equal(secondAccount);
-        expect(events[3].contractName).to.equal("Valid Expense Submission 2");
     });
 
     it("can update the implementation address", async function () {
