@@ -131,11 +131,6 @@
                 "internalType": "uint256",
                 "name": "amountPaid",
                 "type": "uint256"
-              },
-              {
-                "internalType": "uint256",
-                "name": "timestamp",
-                "type": "uint256"
               }
             ],
             "internalType": "struct Expense[]",

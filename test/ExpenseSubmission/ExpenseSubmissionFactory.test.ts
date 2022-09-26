@@ -17,7 +17,6 @@ describe("ExpenseSubmissionFactory", function () {
                     account: (await ethers.getSigners())[1].address,
                     cost: 100000n,
                     amountPaid: 0n,
-                    timestamp: new Date().getTime(),
                 }
             ],
             profitAddress: (await ethers.getSigners())[2].address,
@@ -31,21 +30,18 @@ describe("ExpenseSubmissionFactory", function () {
                     account: (await ethers.getSigners())[1].address,
                     cost: 100000n,
                     amountPaid: 0n,
-                    timestamp: new Date().getTime(),
                 },
                 {
                     name: "Second",
                     account: (await ethers.getSigners())[2].address,
                     cost: 200000n,
                     amountPaid: 0n,
-                    timestamp: new Date().getTime(),
                 },
                 {
                     name: "FirstDuplicate",
                     account: (await ethers.getSigners())[1].address,
                     cost: 4000n,
                     amountPaid: 0n,
-                    timestamp: new Date().getTime(),
                 }
             ],
             profitAddress: (await ethers.getSigners())[3].address,

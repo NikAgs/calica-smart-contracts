@@ -13,8 +13,6 @@ describe("ExpenseSubmission", function () {
         this.nik = signers[2];
         this.moneySender = signers[3];
         this.profitAddress = signers[4].address;
-
-        this.currentTimestamp = new Date().getTime();
     });
 
     // Create a brand new ExpenseSubmission contract before each test
@@ -34,14 +32,12 @@ describe("ExpenseSubmission", function () {
                         account: this.nik.address,
                         cost: 100000n,
                         amountPaid: 0n,
-                        timestamp: new Date().getTime(),
                     },
                     {
                         name: "Second",
                         account: this.adam.address,
                         cost: 100000n,
                         amountPaid: 100n,
-                        timestamp: new Date().getTime(),
                     }
                 ],
                 profitAddress: this.profitAddress,
@@ -70,7 +66,6 @@ describe("ExpenseSubmission", function () {
                     account: this.adam.address,
                     cost: 100000n,
                     amountPaid: 0n,
-                    timestamp: new Date().getTime(),
                 }
             ]);
         } catch (e: any) {
@@ -88,7 +83,6 @@ describe("ExpenseSubmission", function () {
                     account: this.adam.address,
                     cost: 100000n,
                     amountPaid: 0n,
-                    timestamp: new Date().getTime(),
                 }
             ]);
         } catch (e: any) {
@@ -129,13 +123,11 @@ describe("ExpenseSubmission", function () {
         expect(firstExpense.account).to.equal(this.adam.address);
         expect(firstExpense.cost).to.equal(100000n);
         expect(firstExpense.amountPaid).to.equal(0n);
-        expect(firstExpense.timestamp).to.equal(this.currentTimestamp);
 
         expect(secondExpense.name).to.equal("Nik");
         expect(secondExpense.account).to.equal(this.nik.address);
         expect(secondExpense.cost).to.equal(200000n);
         expect(secondExpense.amountPaid).to.equal(0n);
-        expect(secondExpense.timestamp).to.equal(this.currentTimestamp);
     });
 
     it("can reconfigure expenses correctly", async function () {
@@ -149,7 +141,6 @@ describe("ExpenseSubmission", function () {
                 account: this.adam.address,
                 cost: 500000n,
                 amountPaid: 0n,
-                timestamp: this.currentTimestamp
             }
         ]);
 
@@ -162,7 +153,6 @@ describe("ExpenseSubmission", function () {
         expect(reconfiguredExpenses[0].account).to.equal(this.adam.address);
         expect(reconfiguredExpenses[0].cost).to.equal(500000n);
         expect(reconfiguredExpenses[0].amountPaid).to.equal(0n);
-        expect(reconfiguredExpenses[0].timestamp).to.equal(this.currentTimestamp);
     });
 
     it("reimburses costs correctly", async function () {
@@ -259,9 +249,6 @@ describe("ExpenseSubmission", function () {
 
         expect(events[2].amount).to.equal(100000n);
         expect(events[2].account).to.equal(this.profitAddress);
-
-        expect(events[0].timestamp).to.equal(events[1].timestamp)
-        expect(events[1].timestamp).to.equal(events[2].timestamp);
     });
 
     // helper function to set up two expenses
@@ -277,14 +264,12 @@ describe("ExpenseSubmission", function () {
                     account: this.adam.address,
                     cost: 100000n,
                     amountPaid: 0n,
-                    timestamp: this.currentTimestamp
                 },
                 {
                     name: "Nik",
                     account: this.nik.address,
                     cost: 200000n,
                     amountPaid: 0n,
-                    timestamp: this.currentTimestamp
                 },
             ],
             profitAddress: this.profitAddress,

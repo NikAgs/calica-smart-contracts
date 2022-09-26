@@ -35,7 +35,6 @@ struct Expense {
     address payable account;
     uint256 cost;
     uint256 amountPaid;
-    uint256 timestamp;
 }
 
 struct ExpenseSubmissionInput {
