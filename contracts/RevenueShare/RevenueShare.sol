@@ -61,34 +61,45 @@ contract RevenueShare is Initializable {
         return splits;
     }
 
-    function withdrawTokens(address[] memory tokens) public {
-        Split[] memory memSplits = splits;
-        require(memSplits.length > 0, "No splits configured");
-
+    // Pull function for withdrawing a given list of tokens
+    function withdrawTokens(address[] calldata tokens) external {
         for (uint256 i = 0; i < tokens.length; i++) {
-            uint256 balance = IERC20(tokens[i]).balanceOf(address(this));
+            uint256 balance = address(this).balance;
+            if (tokens[i] != address(0)) {
+                balance = IERC20(tokens[i]).balanceOf(address(this));
+            }
 
             if (balance > 0) {
-                // solhint-disable-next-line not-rely-on-time
-                uint256 timestamp = block.timestamp;
-
-                for (uint256 j = 0; j < memSplits.length; j++) {
-                    uint256 withdrawAmount = (balance *
-                        memSplits[j].percentage) / 1e5;
-
-                    emit Withdrawal(
-                        withdrawAmount,
-                        memSplits[j].account,
-                        timestamp,
-                        tokens[i]
-                    );
-
-                    transfer(tokens[i], memSplits[j].account, withdrawAmount);
-                }
+                distributeSplits(tokens[i], balance);
             }
         }
     }
 
+    // Distributes the splits for a given token.
+    // Uses ETH if the token is address(0).
+    function distributeSplits(address token, uint256 amount) internal {
+        Split[] memory memSplits = splits;
+        require(memSplits.length > 0, "No splits configured");
+
+        // solhint-disable-next-line not-rely-on-time
+        uint256 timestamp = block.timestamp;
+
+        for (uint256 j = 0; j < memSplits.length; j++) {
+            uint256 withdrawAmount = (amount * memSplits[j].percentage) / 1e5;
+
+            emit Withdrawal(
+                withdrawAmount,
+                memSplits[j].account,
+                timestamp,
+                token
+            );
+
+            transfer(token, memSplits[j].account, withdrawAmount);
+        }
+    }
+
+    // Sends a given amount of a token to a given address.
+    // If the tokenAddress is 0, then ETH is sent.
     function transfer(
         address tokenAddress,
         address to,
@@ -98,14 +109,13 @@ contract RevenueShare is Initializable {
             (bool sent, ) = to.call{value: amount}("");
             require(sent, "Failed to transfer");
         } else {
-            IERC20(tokenAddress).transferFrom(address(this), to, amount);
+            IERC20(tokenAddress).transfer(to, amount);
         }
     }
 
     receive() external payable {
         if (isPush) {
-            address[] memory tokens = new address[](0);
-            withdrawTokens(tokens);
+            distributeSplits(address(0), msg.value);
         }
     }
 }

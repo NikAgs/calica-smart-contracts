@@ -2,10 +2,18 @@ import { expect } from "chai";
 import { ethers, network } from "hardhat";
 import path from "path";
 
+const ERC20ABI = require("@uniswap/v3-core/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json")
+  .abi;
+
 describe("RevenueShare", function() {
   // Initialize global test variables
   before(async function() {
     this.RevenueShare = await ethers.getContractFactory("RevenueShare");
+
+    this.usdcHolder = "0xf977814e90da44bfa03b6295a0616a897441acec";
+    this.usdcAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+    this.oceanHolder = "0xf977814e90da44bfa03b6295a0616a897441acec";
+    this.oceanAddress = "0x967da4048cD07aB37855c090aAF366e4ce1b9F48";
 
     let signers = await ethers.getSigners();
     this.moneySender = signers[0];
@@ -16,7 +24,19 @@ describe("RevenueShare", function() {
 
   // Create a brand new RevenueShare contract before each test
   beforeEach(async function() {
-    await network.provider.send("hardhat_reset");
+    // Reset hardhat network
+    await network.provider.request({
+      method: "hardhat_reset",
+      params: [
+        {
+          forking: {
+            jsonRpcUrl: process.env["ETHEREUM_ALCHEMY_URL"] as string,
+            blockNumber: 15792160,
+          },
+        },
+      ],
+    });
+
     this.revenueShare = await this.RevenueShare.deploy();
     await this.revenueShare.deployed();
   });
@@ -29,7 +49,8 @@ describe("RevenueShare", function() {
           splits: [],
         },
         this.owner.address,
-        false
+        false,
+        true
       );
     } catch (e) {
       expect(e.message).to.contain("No splits configured");
@@ -55,7 +76,8 @@ describe("RevenueShare", function() {
           ],
         },
         this.owner.address,
-        false
+        false,
+        true
       );
     } catch (e) {
       expect(e.message).to.contain("Percentages must equal 1e5");
@@ -184,24 +206,73 @@ describe("RevenueShare", function() {
     expect(splits[1].percentage).to.equal(50000);
   });
 
-  it("distributes funds correctly", async function() {
-    await initializeValidRevenueShare.bind(this)();
+  it("holds ETH when not a push contract", async function() {
+    await initializeValidRevenueShare.bind(this)(false, false);
 
-    await checkBalance(this.revenueShare.address, 0n);
-    await checkBalance(this.adam.address, 10000000000000000000000n);
-    await checkBalance(this.nik.address, 10000000000000000000000n);
+    await checkETHBalance(this.revenueShare.address, 0n);
+    await checkETHBalance(this.adam.address, 10000000000000000000000n);
+    await checkETHBalance(this.nik.address, 10000000000000000000000n);
 
     await this.moneySender.sendTransaction({
       to: this.revenueShare.address,
       value: ethers.utils.parseEther("3"),
     });
 
-    await checkBalance(this.revenueShare.address, 0n);
-    await checkBalance(this.adam.address, 10001500000000000000000n);
-    await checkBalance(this.nik.address, 10001500000000000000000n);
+    await checkETHBalance(this.revenueShare.address, 3000000000000000000n);
+    await checkETHBalance(this.adam.address, 10000000000000000000000n);
+    await checkETHBalance(this.nik.address, 10000000000000000000000n);
   });
 
-  it("emits withdraw events correctly", async function() {
+  it("withdraws ETH correctly", async function() {
+    await initializeValidRevenueShare.bind(this)(false, false);
+
+    await this.moneySender.sendTransaction({
+      to: this.revenueShare.address,
+      value: ethers.utils.parseEther("3"),
+    });
+
+    await this.revenueShare.withdrawTokens([ethers.constants.AddressZero]);
+
+    await checkETHBalance(this.revenueShare.address, 0n);
+    await checkETHBalance(this.adam.address, 10001500000000000000000n);
+    await checkETHBalance(this.nik.address, 10001500000000000000000n);
+  });
+
+  it("withdraw tokens correctly", async function() {
+    await initializeValidRevenueShare.bind(this)(false, true);
+    await transferTokensToContract.bind(this)();
+
+    await this.revenueShare.withdrawTokens([
+      this.usdcAddress,
+      this.oceanAddress,
+    ]);
+
+    checkERC20Balance(this.usdcContract, this.adam.address, 500000n);
+    checkERC20Balance(this.usdcContract, this.nik.address, 500000n);
+    checkERC20Balance(this.usdcContract, this.revenueShare.address, 0n);
+    checkERC20Balance(this.oceanContract, this.adam.address, 500000n);
+    checkERC20Balance(this.oceanContract, this.nik.address, 500000n);
+    checkERC20Balance(this.oceanContract, this.revenueShare.address, 0n);
+  });
+
+  it("distributes ETH correctly", async function() {
+    await initializeValidRevenueShare.bind(this)();
+
+    await checkETHBalance(this.revenueShare.address, 0n);
+    await checkETHBalance(this.adam.address, 10000000000000000000000n);
+    await checkETHBalance(this.nik.address, 10000000000000000000000n);
+
+    await this.moneySender.sendTransaction({
+      to: this.revenueShare.address,
+      value: ethers.utils.parseEther("3"),
+    });
+
+    await checkETHBalance(this.revenueShare.address, 0n);
+    await checkETHBalance(this.adam.address, 10001500000000000000000n);
+    await checkETHBalance(this.nik.address, 10001500000000000000000n);
+  });
+
+  it("emits ETH withdraw events correctly", async function() {
     await initializeValidRevenueShare.bind(this)();
 
     await this.moneySender.sendTransaction({
@@ -221,10 +292,45 @@ describe("RevenueShare", function() {
     expect(events[0].timestamp).to.equal(events[1].timestamp);
   });
 
+  it("emits token withdraw events correctly", async function() {
+    await initializeValidRevenueShare.bind(this)(false, true);
+    await transferTokensToContract.bind(this)();
+
+    await this.revenueShare.withdrawTokens([
+      this.usdcAddress,
+      this.oceanAddress,
+    ]);
+
+    let events = await getLogs(this.revenueShare.address);
+
+    expect(events.length).to.equal(4);
+
+    expect(events[0].amount).to.equal(500000n);
+    expect(events[0].account).to.equal(this.adam.address);
+    expect(events[0].tokenAddress).to.equal(this.usdcAddress);
+
+    expect(events[1].amount).to.equal(500000n);
+    expect(events[1].account).to.equal(this.nik.address);
+    expect(events[1].tokenAddress).to.equal(this.usdcAddress);
+
+    expect(events[2].amount).to.equal(500000n);
+    expect(events[2].account).to.equal(this.adam.address);
+    expect(events[2].tokenAddress).to.equal(this.oceanAddress);
+
+    expect(events[3].amount).to.equal(500000n);
+    expect(events[3].account).to.equal(this.nik.address);
+    expect(events[3].tokenAddress).to.equal(this.oceanAddress);
+
+    expect(events[0].timestamp).to.equal(events[1].timestamp);
+    expect(events[1].timestamp).to.equal(events[2].timestamp);
+    expect(events[2].timestamp).to.equal(events[3].timestamp);
+  });
+
   // helper function to set up a 50/50 split
   async function initializeValidRevenueShare(
     this: Mocha.Context,
-    reconfigurable: boolean = false
+    reconfigurable: boolean = false,
+    isPush: boolean = true
   ): Promise<void> {
     await this.revenueShare.connect(this.owner).initialize(
       {
@@ -243,17 +349,63 @@ describe("RevenueShare", function() {
         ],
       },
       this.owner.address,
-      reconfigurable
+      reconfigurable,
+      isPush
     );
   }
 });
 
+// helper function to send some OCEAN and USDC to the revenue share contract
+async function transferTokensToContract(this: Mocha.Context) {
+  // Create the USDC Contract instance and send USDC to the contract
+  await network.provider.request({
+    method: "hardhat_impersonateAccount",
+    params: [this.usdcHolder],
+  });
+  let impersonateUSDCHolder = await ethers.getSigner(this.usdcHolder);
+  this.usdcContract = new ethers.Contract(
+    this.usdcAddress,
+    ERC20ABI,
+    impersonateUSDCHolder
+  );
+  let tx = await this.usdcContract
+    .connect(impersonateUSDCHolder)
+    .transfer(this.revenueShare.address, 1000000n);
+  await tx.wait();
+
+  // Create the Ocean Contract instance and send Ocean to the contract
+  await network.provider.request({
+    method: "hardhat_impersonateAccount",
+    params: [this.oceanHolder],
+  });
+  let impersonateOceanHolder = await ethers.getSigner(this.oceanHolder);
+  this.oceanContract = new ethers.Contract(
+    this.oceanAddress,
+    ERC20ABI,
+    impersonateOceanHolder
+  );
+  tx = await this.oceanContract
+    .connect(impersonateOceanHolder)
+    .transfer(this.revenueShare.address, 1000000n);
+  await tx.wait();
+}
+
 // helper function to check the node balance
-async function checkBalance(
+async function checkETHBalance(
   address: any,
   expectedBalance: bigint
 ): Promise<void> {
   let balance = await ethers.provider.getBalance(address);
+  expect(balance).to.equal(expectedBalance);
+}
+
+// helper function to check the ERC20 balance
+async function checkERC20Balance(
+  address: any,
+  contract: any,
+  expectedBalance: bigint
+): Promise<void> {
+  let balance = await contract.balanceOf(address);
   expect(balance).to.equal(expectedBalance);
 }
 

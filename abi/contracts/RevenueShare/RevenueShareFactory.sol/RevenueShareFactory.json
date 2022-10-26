@@ -141,6 +141,11 @@
         "internalType": "bool",
         "name": "isReconfigurable",
         "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "isPush",
+        "type": "bool"
       }
     ],
     "name": "createNewRevenueShare",

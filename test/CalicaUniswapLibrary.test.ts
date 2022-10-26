@@ -5,10 +5,10 @@ const ERC20ABI = require("@uniswap/v3-core/artifacts/contracts/interfaces/IERC20
   .abi;
 
 // Runs only on forked mainnet
-describe.only("TestCalicaExpenseUniswap", function() {
+describe("TestCalicaExpenseUniswap", function() {
   before(async function() {
     this.oceanHolder = "0xf977814e90da44bfa03b6295a0616a897441acec";
-    this.oceanAddress = "0x967da4048cd07ab37855c090aaf366e4ce1b9f48";
+    this.oceanAddress = "0x967da4048cD07aB37855c090aAF366e4ce1b9F48";
 
     this.daiHolder = "0xf977814e90da44bfa03b6295a0616a897441acec";
     this.daiAddress = "0x6B175474E89094C44Da98b954EedeAC495271d0F";

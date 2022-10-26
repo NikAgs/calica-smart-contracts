@@ -131,6 +131,11 @@
                 "internalType": "uint256",
                 "name": "amountPaid",
                 "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "tokenAddress",
+                "type": "address"
               }
             ],
             "internalType": "struct Expense[]",
