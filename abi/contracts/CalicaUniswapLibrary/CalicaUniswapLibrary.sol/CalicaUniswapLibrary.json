@@ -1,0 +1,28 @@
+[
+  {
+    "inputs": [],
+    "name": "SWAP_ROUTER",
+    "outputs": [
+      {
+        "internalType": "contract ISwapRouter",
+        "name": "",
+        "type": "ISwapRouter"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "WETH9",
+    "outputs": [
+      {
+        "internalType": "contract IWETH9",
+        "name": "",
+        "type": "IWETH9"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

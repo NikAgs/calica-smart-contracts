@@ -3,11 +3,14 @@
 pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 import {Split, RevenueShareInput} from "../globals.sol";
 
 contract RevenueShare is Initializable {
     Split[] internal splits;
     bool internal isReconfigurable;
+    bool internal isPush;
 
     string public contractName;
     address public owner;
@@ -15,13 +18,15 @@ contract RevenueShare is Initializable {
     event Withdrawal(
         uint256 amount,
         address indexed account,
-        uint256 timestamp
+        uint256 timestamp,
+        address tokenAddress
     );
 
     function initialize(
         RevenueShareInput calldata input,
         address initOwner,
-        bool initIsReconfigurable
+        bool initIsReconfigurable,
+        bool initIsPush
     ) external initializer {
         require(input.splits.length > 0, "No splits configured");
         require(initOwner != address(0), "Owner cant be addr(0)");
@@ -29,6 +34,7 @@ contract RevenueShare is Initializable {
         contractName = input.contractName;
         owner = initOwner;
         isReconfigurable = initIsReconfigurable;
+        isPush = initIsPush;
 
         validateAndUpdateSplits(input.splits);
     }
@@ -55,22 +61,51 @@ contract RevenueShare is Initializable {
         return splits;
     }
 
-    receive() external payable {
+    function withdrawTokens(address[] memory tokens) public {
         Split[] memory memSplits = splits;
         require(memSplits.length > 0, "No splits configured");
 
-        // solhint-disable-next-line
-        uint256 timestamp = block.timestamp;
-        uint256 amount = msg.value;
+        for (uint256 i = 0; i < tokens.length; i++) {
+            uint256 balance = IERC20(tokens[i]).balanceOf(address(this));
 
-        for (uint256 i = 0; i < memSplits.length; i++) {
-            uint256 withdrawAmount = (amount * memSplits[i].percentage) / 1e5;
+            if (balance > 0) {
+                // solhint-disable-next-line not-rely-on-time
+                uint256 timestamp = block.timestamp;
 
-            emit Withdrawal(withdrawAmount, memSplits[i].account, timestamp);
-            (bool sent, ) = memSplits[i].account.call{value: withdrawAmount}(
-                ""
-            );
+                for (uint256 j = 0; j < memSplits.length; j++) {
+                    uint256 withdrawAmount = (balance *
+                        memSplits[j].percentage) / 1e5;
+
+                    emit Withdrawal(
+                        withdrawAmount,
+                        memSplits[j].account,
+                        timestamp,
+                        tokens[i]
+                    );
+
+                    transfer(tokens[i], memSplits[j].account, withdrawAmount);
+                }
+            }
+        }
+    }
+
+    function transfer(
+        address tokenAddress,
+        address to,
+        uint256 amount
+    ) internal {
+        if (tokenAddress == address(0)) {
+            (bool sent, ) = to.call{value: amount}("");
             require(sent, "Failed to transfer");
+        } else {
+            IERC20(tokenAddress).transferFrom(address(this), to, amount);
+        }
+    }
+
+    receive() external payable {
+        if (isPush) {
+            address[] memory tokens = new address[](0);
+            withdrawTokens(tokens);
         }
     }
 }

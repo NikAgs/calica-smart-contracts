@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: CC-BY-NC-ND
-
 pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol";

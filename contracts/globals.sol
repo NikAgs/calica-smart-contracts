@@ -42,3 +42,17 @@ struct ExpenseSubmissionInput {
     Expense[] expenses;
     address payable profitAddress;
 }
+
+// struct ERC20Swap {
+//     address tokenIn;
+//     address tokenOut;
+//     uint24 fee;
+//     uint256 deadline;
+//     uint256 amountOutMinimum;
+//     uint256 sqrtPriceLimitX96;
+// }
+
+// struct BatchSwap {
+//     address recipient;
+//     ERC20Swap[] swaps;
+// }

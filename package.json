@@ -13,16 +13,18 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.7.3",
+    "@uniswap/v3-core": "^1.0.1",
+    "@uniswap/v3-periphery": "^1.4.2",
     "dotenv": "^16.0.2",
-    "ethers": "^5.7.1",
     "hardhat": "^2.11.2",
     "npm-check-updates": "^16.2.1"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.0",
-    "@nomiclabs/hardhat-ethers": "^2.1.1",
+    "@nomiclabs/hardhat-ethers": "^2.2.0",
     "@openzeppelin/contracts-upgradeable": "^4.7.3",
-    "@openzeppelin/hardhat-upgrades": "^1.20.0",
+    "@openzeppelin/hardhat-upgrades": "^1.21.0",
+    "ethers": "^5.7.2",
     "hardhat-abi-exporter": "^2.10.0",
     "i": "^0.3.7",
     "npm": "^8.19.2",

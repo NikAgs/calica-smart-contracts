@@ -37,7 +37,8 @@ contract RevenueShareFactory is
 
     function createNewRevenueShare(
         RevenueShareInput calldata input,
-        bool isReconfigurable
+        bool isReconfigurable,
+        bool isPush
     ) external returns (address) {
         address memImplementationAddress = implementationAddress;
 
@@ -62,7 +63,7 @@ contract RevenueShareFactory is
         }
 
         RevenueShare revenueShare = RevenueShare(cloneAddress);
-        revenueShare.initialize(input, msg.sender, isReconfigurable);
+        revenueShare.initialize(input, msg.sender, isReconfigurable, isPush);
 
         return cloneAddress;
     }
