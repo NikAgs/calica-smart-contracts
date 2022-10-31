@@ -3,7 +3,7 @@
 pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 import {Split, RevenueShareInput} from "../globals.sol";
 
@@ -66,7 +66,7 @@ contract RevenueShare is Initializable {
         for (uint256 i = 0; i < tokens.length; i++) {
             uint256 balance = address(this).balance;
             if (tokens[i] != address(0)) {
-                balance = IERC20(tokens[i]).balanceOf(address(this));
+                balance = IERC20Upgradeable(tokens[i]).balanceOf(address(this));
             }
 
             if (balance > 0) {
@@ -109,7 +109,7 @@ contract RevenueShare is Initializable {
             (bool sent, ) = to.call{value: amount}("");
             require(sent, "Failed to transfer");
         } else {
-            IERC20(tokenAddress).transfer(to, amount);
+            IERC20Upgradeable(tokenAddress).transfer(to, amount);
         }
     }
 

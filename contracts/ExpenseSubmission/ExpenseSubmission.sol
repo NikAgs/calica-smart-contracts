@@ -3,7 +3,7 @@
 pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 import {Expense, ExpenseSubmissionInput} from "../globals.sol";
 
@@ -118,7 +118,7 @@ contract ExpenseSubmission is Initializable {
         if (token == address(0)) {
             return address(this).balance;
         } else {
-            return IERC20(token).balanceOf(address(this));
+            return IERC20Upgradeable(token).balanceOf(address(this));
         }
     }
 
@@ -133,7 +133,7 @@ contract ExpenseSubmission is Initializable {
             (bool sent, ) = to.call{value: amount}("");
             require(sent, "Failed to transfer");
         } else {
-            IERC20(token).transfer(to, amount);
+            IERC20Upgradeable(token).transfer(to, amount);
         }
     }
 
