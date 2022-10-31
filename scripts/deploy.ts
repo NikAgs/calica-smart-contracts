@@ -10,7 +10,7 @@ async function main() {
     network
   );
 
-  // await new Promise((resolve) => setTimeout(resolve, 3000));
+  await new Promise((resolve) => setTimeout(resolve, 3000));
 
   await updateContract(
     "CappedRevenueShareFactory",
@@ -18,7 +18,7 @@ async function main() {
     network
   );
 
-  // await new Promise((resolve) => setTimeout(resolve, 3000));
+  await new Promise((resolve) => setTimeout(resolve, 3000));
 
   await updateContract(
     "ExpenseSubmissionFactory",
