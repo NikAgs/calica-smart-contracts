@@ -86,6 +86,11 @@
             "internalType": "address",
             "name": "tokenAddress",
             "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
           }
         ],
         "internalType": "struct Expense[]",
@@ -131,6 +136,11 @@
                 "internalType": "address",
                 "name": "tokenAddress",
                 "type": "address"
+              },
+              {
+                "internalType": "string",
+                "name": "description",
+                "type": "string"
               }
             ],
             "internalType": "struct Expense[]",
@@ -212,14 +222,24 @@
             "internalType": "address",
             "name": "tokenAddress",
             "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
           }
         ],
         "internalType": "struct Expense[]",
         "name": "newExpenses",
         "type": "tuple[]"
+      },
+      {
+        "internalType": "address payable",
+        "name": "newProfitAddress",
+        "type": "address"
       }
     ],
-    "name": "reconfigureExpenses",
+    "name": "reconfigure",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

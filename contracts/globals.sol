@@ -36,6 +36,7 @@ struct Expense {
     uint256 cost;
     uint256 amountPaid;
     address tokenAddress;
+    string description;
 }
 
 struct ExpenseSubmissionInput {

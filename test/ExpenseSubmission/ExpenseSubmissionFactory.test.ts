@@ -2,9 +2,9 @@ import { expect } from "chai";
 import { ethers, network } from "hardhat";
 import path from "path";
 
-describe("ExpenseSubmissionFactory", function() {
+describe("ExpenseSubmissionFactory", function () {
   // Initialize global test variables
-  before(async function() {
+  before(async function () {
     this.ExpenseSubmissionFactory = await ethers.getContractFactory(
       "ExpenseSubmissionFactory"
     );
@@ -18,6 +18,7 @@ describe("ExpenseSubmissionFactory", function() {
           cost: 100000n,
           amountPaid: 0n,
           tokenAddress: ethers.constants.AddressZero,
+          description: "First expense"
         },
       ],
       profitAddress: (await ethers.getSigners())[2].address,
@@ -32,6 +33,7 @@ describe("ExpenseSubmissionFactory", function() {
           cost: 100000n,
           amountPaid: 0n,
           tokenAddress: ethers.constants.AddressZero,
+          description: "First expense"
         },
         {
           name: "Second",
@@ -39,6 +41,8 @@ describe("ExpenseSubmissionFactory", function() {
           cost: 200000n,
           amountPaid: 0n,
           tokenAddress: ethers.constants.AddressZero,
+          description: "Second expense"
+
         },
         {
           name: "FirstDuplicate",
@@ -46,6 +50,7 @@ describe("ExpenseSubmissionFactory", function() {
           cost: 4000n,
           amountPaid: 0n,
           tokenAddress: ethers.constants.AddressZero,
+          description: "Third expense"
         },
       ],
       profitAddress: (await ethers.getSigners())[3].address,
@@ -53,13 +58,13 @@ describe("ExpenseSubmissionFactory", function() {
   });
 
   // Create a brand new ExpenseSubmission contract before each test
-  beforeEach(async function() {
+  beforeEach(async function () {
     await network.provider.send("hardhat_reset");
     this.expenseSubmissionFactory = await this.ExpenseSubmissionFactory.deploy();
     await this.expenseSubmissionFactory.deployed();
   });
 
-  it("won't create a ExpenseSubmission contract without being initialized", async function() {
+  it("won't create a ExpenseSubmission contract without being initialized", async function () {
     try {
       await this.expenseSubmissionFactory.createNewExpenseSubmission(
         this.validInput
@@ -69,7 +74,7 @@ describe("ExpenseSubmissionFactory", function() {
     }
   });
 
-  it("can create a ExpenseSubmission contract and initialize it", async function() {
+  it("can create a ExpenseSubmission contract and initialize it", async function () {
     await this.expenseSubmissionFactory.initialize();
 
     let deployedAddress = await this.expenseSubmissionFactory.createNewExpenseSubmission(
@@ -92,7 +97,7 @@ describe("ExpenseSubmissionFactory", function() {
     expect(deployedName).to.equal("Valid Expense Submission");
   });
 
-  it("can create a ExpenseSubmission contract and reconfigure it", async function() {
+  it("can create a ExpenseSubmission contract and reconfigure it", async function () {
     await this.expenseSubmissionFactory.initialize();
 
     let deployedAddress = await this.expenseSubmissionFactory.createNewExpenseSubmission(
@@ -113,7 +118,7 @@ describe("ExpenseSubmissionFactory", function() {
 
     let initialExpenses = await deployedClone.getExpenses();
 
-    await deployedClone.reconfigureExpenses(this.validTripleExpense.expenses);
+    await deployedClone.reconfigure(this.validTripleExpense.expenses, this.validInput.profitAddress);
 
     let reconfiguredExpenses = await deployedClone.getExpenses();
 
@@ -121,7 +126,7 @@ describe("ExpenseSubmissionFactory", function() {
     expect(reconfiguredExpenses.length).to.equal(3);
   });
 
-  it("can emit correct events", async function() {
+  it("can emit correct events", async function () {
     await this.expenseSubmissionFactory.initialize();
 
     let deployedAddress = await this.expenseSubmissionFactory.createNewExpenseSubmission(
@@ -152,7 +157,7 @@ describe("ExpenseSubmissionFactory", function() {
     expect(events[1].contractName).to.equal("Valid Expense Submission");
   });
 
-  it("sends correct events for multiple addresses", async function() {
+  it("sends correct events for multiple addresses", async function () {
     await this.expenseSubmissionFactory.initialize();
 
     let deployedAddress = await this.expenseSubmissionFactory.createNewExpenseSubmission(
@@ -183,7 +188,7 @@ describe("ExpenseSubmissionFactory", function() {
     expect(events[1].contractName).to.equal("Valid Expense Submission 2");
   });
 
-  it("can update the implementation address", async function() {
+  it("can update the implementation address", async function () {
     await this.expenseSubmissionFactory.initialize();
 
     let firstImplAddress = await this.expenseSubmissionFactory.implementationAddress();

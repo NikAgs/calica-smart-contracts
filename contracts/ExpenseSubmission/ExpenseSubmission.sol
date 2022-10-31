@@ -30,25 +30,26 @@ contract ExpenseSubmission is Initializable {
         owner = initOwner;
         profitAddress = input.profitAddress;
 
-        validateAndUpdateExpenses(input.expenses);
+        updateExpenses(input.expenses);
     }
 
-    function validateAndUpdateExpenses(Expense[] calldata newExpenses)
-        internal
-    {
+    function updateExpenses(Expense[] calldata newExpenses) internal {
         for (uint256 i = 0; i < newExpenses.length; i++) {
-            require(newExpenses[i].amountPaid == 0, "amountPaid must be 0");
             expenses.push(newExpenses[i]);
         }
     }
 
-    function reconfigureExpenses(Expense[] calldata newExpenses) external {
+    function reconfigure(
+        Expense[] calldata newExpenses,
+        address payable newProfitAddress
+    ) external {
         require(profitAddress != address(0), "Profit address not set");
         require(msg.sender == owner, "Only owner can reconfigure");
 
         delete expenses;
+        updateExpenses(newExpenses);
 
-        validateAndUpdateExpenses(newExpenses);
+        profitAddress = newProfitAddress;
     }
 
     function getExpenses() external view returns (Expense[] memory) {

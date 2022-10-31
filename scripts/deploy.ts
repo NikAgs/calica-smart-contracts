@@ -38,7 +38,7 @@ async function updateContract(name: string, address: string, network: string) {
     // Sometimes needed if .openzeppelin files aren't up to date
     await upgrades.forceImport(address, contract);
     console.log("Force import necessary");
-  } catch (err) {}
+  } catch (err) { }
 
   await upgrades.upgradeProxy(address, contract, {
     call: {

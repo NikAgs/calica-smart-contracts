@@ -136,6 +136,11 @@
                 "internalType": "address",
                 "name": "tokenAddress",
                 "type": "address"
+              },
+              {
+                "internalType": "string",
+                "name": "description",
+                "type": "string"
               }
             ],
             "internalType": "struct Expense[]",
