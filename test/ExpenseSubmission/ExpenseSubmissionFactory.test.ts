@@ -15,6 +15,7 @@ describe("ExpenseSubmissionFactory", function () {
                 {
                     name: "First",
                     account: (await ethers.getSigners())[1].address,
+                    description: "First expense",
                     cost: 100000n,
                     amountPaid: 0n,
                 }
@@ -28,18 +29,21 @@ describe("ExpenseSubmissionFactory", function () {
                 {
                     name: "First",
                     account: (await ethers.getSigners())[1].address,
+                    description: "First expense",
                     cost: 100000n,
                     amountPaid: 0n,
                 },
                 {
                     name: "Second",
                     account: (await ethers.getSigners())[2].address,
+                    description: "Second expense",
                     cost: 200000n,
                     amountPaid: 0n,
                 },
                 {
                     name: "FirstDuplicate",
                     account: (await ethers.getSigners())[1].address,
+                    description: "FirstDuplicate expense",
                     cost: 4000n,
                     amountPaid: 0n,
                 }
@@ -88,13 +92,17 @@ describe("ExpenseSubmissionFactory", function () {
         let deployedClone = new ethers.Contract(events[0].cloneAddress, expenseSubmissionABI, ethers.provider.getSigner());
 
         let initialExpenses = await deployedClone.getExpenses();
+        let initialProfitAddress = await deployedClone.profitAddress();
 
-        await deployedClone.reconfigureExpenses(this.validTripleExpense.expenses);
+        await deployedClone.reconfigure(this.validTripleExpense.expenses, this.validTripleExpense.profitAddress);
 
         let reconfiguredExpenses = await deployedClone.getExpenses();
+        let reconfiguredProfitAddress = await deployedClone.profitAddress();
 
         expect(initialExpenses.length).to.equal(1);
         expect(reconfiguredExpenses.length).to.equal(3);
+        expect(initialProfitAddress).to.equal((await ethers.getSigners())[2].address);
+        expect(reconfiguredProfitAddress).to.equal((await ethers.getSigners())[3].address);
     });
 
     it("can emit correct events", async function () {

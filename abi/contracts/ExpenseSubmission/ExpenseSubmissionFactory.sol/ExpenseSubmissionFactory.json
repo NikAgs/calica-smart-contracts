@@ -123,6 +123,11 @@
                 "type": "address"
               },
               {
+                "internalType": "string",
+                "name": "description",
+                "type": "string"
+              },
+              {
                 "internalType": "uint256",
                 "name": "cost",
                 "type": "uint256"

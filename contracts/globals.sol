@@ -33,6 +33,7 @@ struct CappedRevenueShareInput {
 struct Expense {
     string name;
     address payable account;
+    string description;
     uint256 cost;
     uint256 amountPaid;
 }

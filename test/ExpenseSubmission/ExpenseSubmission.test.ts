@@ -13,6 +13,7 @@ describe("ExpenseSubmission", function () {
         this.nik = signers[2];
         this.moneySender = signers[3];
         this.profitAddress = signers[4].address;
+        this.otherProfitAddress = signers[5].address;
     });
 
     // Create a brand new ExpenseSubmission contract before each test
@@ -20,31 +21,6 @@ describe("ExpenseSubmission", function () {
         await network.provider.send("hardhat_reset");
         this.expenseSubmission = await this.ExpenseSubmission.deploy();
         await this.expenseSubmission.deployed();
-    });
-
-    it("fails when amountPaid values > 0", async function () {
-        try {
-            await this.expenseSubmission.initialize({
-                contractName: "Failed Initialize",
-                expenses: [
-                    {
-                        name: "First",
-                        account: this.nik.address,
-                        cost: 100000n,
-                        amountPaid: 0n,
-                    },
-                    {
-                        name: "Second",
-                        account: this.adam.address,
-                        cost: 100000n,
-                        amountPaid: 100n,
-                    }
-                ],
-                profitAddress: this.profitAddress,
-            }, this.owner.address);
-        } catch (e: any) {
-            expect(e.message).to.contain("amountPaid must be 0");
-        }
     });
 
     it("fails when receiving funds before being initialized", async function () {
@@ -60,14 +36,15 @@ describe("ExpenseSubmission", function () {
 
     it("fails when trying to reconfigure before being initialized", async function () {
         try {
-            await this.expenseSubmission.connect(this.owner).reconfigureExpenses([
+            await this.expenseSubmission.connect(this.owner).reconfigure([
                 {
                     name: "Adam",
                     account: this.adam.address,
+                    description: "Adam's expenses",
                     cost: 100000n,
                     amountPaid: 0n,
                 }
-            ]);
+            ], this.profitAddress);
         } catch (e: any) {
             expect(e.message).to.contain("Profit address not set");
         }
@@ -77,14 +54,15 @@ describe("ExpenseSubmission", function () {
         try {
             await initializeValidExpenseSubmission.bind(this)();
 
-            await this.expenseSubmission.connect(this.adam).reconfigureExpenses([
+            await this.expenseSubmission.connect(this.adam).reconfigure([
                 {
                     name: "Adam",
                     account: this.adam.address,
+                    description: "Adam's expenses",
                     cost: 100000n,
                     amountPaid: 0n,
                 }
-            ]);
+            ], this.profitAddress);
         } catch (e: any) {
             expect(e.message).to.contain("Only owner can reconfigure");
         }
@@ -121,11 +99,13 @@ describe("ExpenseSubmission", function () {
 
         expect(firstExpense.name).to.equal("Adam");
         expect(firstExpense.account).to.equal(this.adam.address);
+        expect(firstExpense.description).to.equal("Adam's expenses");
         expect(firstExpense.cost).to.equal(100000n);
         expect(firstExpense.amountPaid).to.equal(0n);
 
         expect(secondExpense.name).to.equal("Nik");
         expect(secondExpense.account).to.equal(this.nik.address);
+        expect(secondExpense.description).to.equal("Nik's expenses");
         expect(secondExpense.cost).to.equal(200000n);
         expect(secondExpense.amountPaid).to.equal(0n);
     });
@@ -134,25 +114,32 @@ describe("ExpenseSubmission", function () {
         await initializeValidExpenseSubmission.bind(this, true)();
 
         let initialExpenses = await this.expenseSubmission.getExpenses();
+        let initialProfitAddress = await this.expenseSubmission.profitAddress();
 
-        await this.expenseSubmission.connect(this.owner).reconfigureExpenses([
+        await this.expenseSubmission.connect(this.owner).reconfigure([
             {
                 name: "New Adam",
                 account: this.adam.address,
+                description: "New Adam's expenses",
                 cost: 500000n,
                 amountPaid: 0n,
             }
-        ]);
+        ], this.otherProfitAddress);
 
         let reconfiguredExpenses = await this.expenseSubmission.getExpenses();
+        let reconfiguredProfitAddress = await this.expenseSubmission.profitAddress();
 
         expect(initialExpenses.length).to.equal(2);
-        expect(reconfiguredExpenses.length).to.equal(1);
+        expect(initialProfitAddress).to.equal(this.profitAddress);
 
+        expect(reconfiguredExpenses.length).to.equal(1);
         expect(reconfiguredExpenses[0].name).to.equal("New Adam");
         expect(reconfiguredExpenses[0].account).to.equal(this.adam.address);
+        expect(reconfiguredExpenses[0].description).to.equal("New Adam's expenses");
         expect(reconfiguredExpenses[0].cost).to.equal(500000n);
         expect(reconfiguredExpenses[0].amountPaid).to.equal(0n);
+
+        expect(reconfiguredProfitAddress).to.equal(this.otherProfitAddress);
     });
 
     it("reimburses costs correctly", async function () {
@@ -263,11 +250,13 @@ describe("ExpenseSubmission", function () {
                     name: "Adam",
                     account: this.adam.address,
                     cost: 100000n,
+                    description: "Adam's expenses",
                     amountPaid: 0n,
                 },
                 {
                     name: "Nik",
                     account: this.nik.address,
+                    description: "Nik's expenses",
                     cost: 200000n,
                     amountPaid: 0n,
                 },
