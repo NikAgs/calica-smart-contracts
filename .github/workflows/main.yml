@@ -34,7 +34,7 @@ jobs:
 
           cat .env
       - run: npm ci
-      
+
       - run: npm run lint
 
       - run: npm run coverage
@@ -49,6 +49,5 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: ${{ steps.slither.outputs.sarif }}
-
-      - name: Deploy to Mumbai Testnet
-        run: npm run deploy-mumbai
+      # - name: Deploy to Mumbai Testnet
+      #   run: npm run deploy-mumbai

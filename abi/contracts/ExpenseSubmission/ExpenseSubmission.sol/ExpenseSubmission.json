@@ -32,6 +32,12 @@
         "internalType": "uint256",
         "name": "timestamp",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "tokenAddress",
+        "type": "address"
       }
     ],
     "name": "Withdrawal",
@@ -67,11 +73,6 @@
             "type": "address"
           },
           {
-            "internalType": "string",
-            "name": "description",
-            "type": "string"
-          },
-          {
             "internalType": "uint256",
             "name": "cost",
             "type": "uint256"
@@ -80,6 +81,16 @@
             "internalType": "uint256",
             "name": "amountPaid",
             "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
           }
         ],
         "internalType": "struct Expense[]",
@@ -112,11 +123,6 @@
                 "type": "address"
               },
               {
-                "internalType": "string",
-                "name": "description",
-                "type": "string"
-              },
-              {
                 "internalType": "uint256",
                 "name": "cost",
                 "type": "uint256"
@@ -125,6 +131,16 @@
                 "internalType": "uint256",
                 "name": "amountPaid",
                 "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "tokenAddress",
+                "type": "address"
+              },
+              {
+                "internalType": "string",
+                "name": "description",
+                "type": "string"
               }
             ],
             "internalType": "struct Expense[]",
@@ -193,11 +209,6 @@
             "type": "address"
           },
           {
-            "internalType": "string",
-            "name": "description",
-            "type": "string"
-          },
-          {
             "internalType": "uint256",
             "name": "cost",
             "type": "uint256"
@@ -206,6 +217,16 @@
             "internalType": "uint256",
             "name": "amountPaid",
             "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
           }
         ],
         "internalType": "struct Expense[]",
@@ -219,6 +240,32 @@
       }
     ],
     "name": "reconfigure",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "expenseIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "reimburseExpenses",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "tokens",
+        "type": "address[]"
+      }
+    ],
+    "name": "sendToProfitAddress",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

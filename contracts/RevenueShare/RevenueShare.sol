@@ -3,11 +3,14 @@
 pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 import {Split, RevenueShareInput} from "../globals.sol";
 
 contract RevenueShare is Initializable {
     Split[] internal splits;
     bool internal isReconfigurable;
+    bool internal isPush;
 
     string public contractName;
     address public owner;
@@ -15,13 +18,15 @@ contract RevenueShare is Initializable {
     event Withdrawal(
         uint256 amount,
         address indexed account,
-        uint256 timestamp
+        uint256 timestamp,
+        address tokenAddress
     );
 
     function initialize(
         RevenueShareInput calldata input,
         address initOwner,
-        bool initIsReconfigurable
+        bool initIsReconfigurable,
+        bool initIsPush
     ) external initializer {
         require(input.splits.length > 0, "No splits configured");
         require(initOwner != address(0), "Owner cant be addr(0)");
@@ -29,6 +34,7 @@ contract RevenueShare is Initializable {
         contractName = input.contractName;
         owner = initOwner;
         isReconfigurable = initIsReconfigurable;
+        isPush = initIsPush;
 
         validateAndUpdateSplits(input.splits);
     }
@@ -55,22 +61,61 @@ contract RevenueShare is Initializable {
         return splits;
     }
 
-    receive() external payable {
+    // Pull function for withdrawing a given list of tokens
+    function withdrawTokens(address[] calldata tokens) external {
+        for (uint256 i = 0; i < tokens.length; i++) {
+            uint256 balance = address(this).balance;
+            if (tokens[i] != address(0)) {
+                balance = IERC20(tokens[i]).balanceOf(address(this));
+            }
+
+            if (balance > 0) {
+                distributeSplits(tokens[i], balance);
+            }
+        }
+    }
+
+    // Distributes the splits for a given token.
+    // Uses ETH if the token is address(0).
+    function distributeSplits(address token, uint256 amount) internal {
         Split[] memory memSplits = splits;
         require(memSplits.length > 0, "No splits configured");
 
-        // solhint-disable-next-line
+        // solhint-disable-next-line not-rely-on-time
         uint256 timestamp = block.timestamp;
-        uint256 amount = msg.value;
 
-        for (uint256 i = 0; i < memSplits.length; i++) {
-            uint256 withdrawAmount = (amount * memSplits[i].percentage) / 1e5;
+        for (uint256 j = 0; j < memSplits.length; j++) {
+            uint256 withdrawAmount = (amount * memSplits[j].percentage) / 1e5;
 
-            emit Withdrawal(withdrawAmount, memSplits[i].account, timestamp);
-            (bool sent, ) = memSplits[i].account.call{value: withdrawAmount}(
-                ""
+            emit Withdrawal(
+                withdrawAmount,
+                memSplits[j].account,
+                timestamp,
+                token
             );
+
+            transfer(token, memSplits[j].account, withdrawAmount);
+        }
+    }
+
+    // Sends a given amount of a token to a given address.
+    // If the tokenAddress is 0, then ETH is sent.
+    function transfer(
+        address tokenAddress,
+        address to,
+        uint256 amount
+    ) internal {
+        if (tokenAddress == address(0)) {
+            (bool sent, ) = to.call{value: amount}("");
             require(sent, "Failed to transfer");
+        } else {
+            IERC20(tokenAddress).transfer(to, amount);
+        }
+    }
+
+    receive() external payable {
+        if (isPush) {
+            distributeSplits(address(0), msg.value);
         }
     }
 }

@@ -3,187 +3,228 @@ import { ethers, network } from "hardhat";
 import path from "path";
 
 describe("ExpenseSubmissionFactory", function () {
-    // Initialize global test variables
-    before(async function () {
-        this.ExpenseSubmissionFactory = await ethers.getContractFactory(
-            "ExpenseSubmissionFactory"
-        );
+  // Initialize global test variables
+  before(async function () {
+    this.ExpenseSubmissionFactory = await ethers.getContractFactory(
+      "ExpenseSubmissionFactory"
+    );
 
-        this.validInput = {
-            contractName: "Valid Expense Submission",
-            expenses: [
-                {
-                    name: "First",
-                    account: (await ethers.getSigners())[1].address,
-                    description: "First expense",
-                    cost: 100000n,
-                    amountPaid: 0n,
-                }
-            ],
-            profitAddress: (await ethers.getSigners())[2].address,
-        }
+    this.validInput = {
+      contractName: "Valid Expense Submission",
+      expenses: [
+        {
+          name: "First",
+          account: (await ethers.getSigners())[1].address,
+          cost: 100000n,
+          amountPaid: 0n,
+          tokenAddress: ethers.constants.AddressZero,
+          description: "First expense"
+        },
+      ],
+      profitAddress: (await ethers.getSigners())[2].address,
+    };
 
-        this.validTripleExpense = {
-            contractName: "Valid Expense Submission 2",
-            expenses: [
-                {
-                    name: "First",
-                    account: (await ethers.getSigners())[1].address,
-                    description: "First expense",
-                    cost: 100000n,
-                    amountPaid: 0n,
-                },
-                {
-                    name: "Second",
-                    account: (await ethers.getSigners())[2].address,
-                    description: "Second expense",
-                    cost: 200000n,
-                    amountPaid: 0n,
-                },
-                {
-                    name: "FirstDuplicate",
-                    account: (await ethers.getSigners())[1].address,
-                    description: "FirstDuplicate expense",
-                    cost: 4000n,
-                    amountPaid: 0n,
-                }
-            ],
-            profitAddress: (await ethers.getSigners())[3].address,
-        }
-    });
+    this.validTripleExpense = {
+      contractName: "Valid Expense Submission 2",
+      expenses: [
+        {
+          name: "First",
+          account: (await ethers.getSigners())[1].address,
+          cost: 100000n,
+          amountPaid: 0n,
+          tokenAddress: ethers.constants.AddressZero,
+          description: "First expense"
+        },
+        {
+          name: "Second",
+          account: (await ethers.getSigners())[2].address,
+          cost: 200000n,
+          amountPaid: 0n,
+          tokenAddress: ethers.constants.AddressZero,
+          description: "Second expense"
 
-    // Create a brand new ExpenseSubmission contract before each test
-    beforeEach(async function () {
-        await network.provider.send("hardhat_reset");
-        this.expenseSubmissionFactory = await this.ExpenseSubmissionFactory.deploy();
-        await this.expenseSubmissionFactory.deployed();
-    });
+        },
+        {
+          name: "FirstDuplicate",
+          account: (await ethers.getSigners())[1].address,
+          cost: 4000n,
+          amountPaid: 0n,
+          tokenAddress: ethers.constants.AddressZero,
+          description: "Third expense"
+        },
+      ],
+      profitAddress: (await ethers.getSigners())[3].address,
+    };
+  });
 
-    it("won't create a ExpenseSubmission contract without being initialized", async function () {
-        try {
-            await this.expenseSubmissionFactory.createNewExpenseSubmission(this.validInput);
-        } catch (e: any) {
-            expect(e.message).to.contain("Must be initialized first");
-        }
-    });
+  // Create a brand new ExpenseSubmission contract before each test
+  beforeEach(async function () {
+    await network.provider.send("hardhat_reset");
+    this.expenseSubmissionFactory = await this.ExpenseSubmissionFactory.deploy();
+    await this.expenseSubmissionFactory.deployed();
+  });
 
-    it("can create a ExpenseSubmission contract and initialize it", async function () {
-        await this.expenseSubmissionFactory.initialize();
+  it("won't create a ExpenseSubmission contract without being initialized", async function () {
+    try {
+      await this.expenseSubmissionFactory.createNewExpenseSubmission(
+        this.validInput
+      );
+    } catch (e) {
+      expect(e.message).to.contain("Must be initialized first");
+    }
+  });
 
-        let deployedAddress = await this.expenseSubmissionFactory.createNewExpenseSubmission(this.validInput);
-        await deployedAddress.wait();
+  it("can create a ExpenseSubmission contract and initialize it", async function () {
+    await this.expenseSubmissionFactory.initialize();
 
-        let events = await getLogs(this.expenseSubmissionFactory.address);
-        let revShareABI = require(path.resolve(__dirname, "../../abi/contracts/ExpenseSubmission/ExpenseSubmission.sol/ExpenseSubmission.json"))
-        let deployedClone = new ethers.Contract(events[0].cloneAddress, revShareABI, ethers.provider.getSigner());
-        let deployedName = await deployedClone.contractName();
+    let deployedAddress = await this.expenseSubmissionFactory.createNewExpenseSubmission(
+      this.validInput
+    );
+    await deployedAddress.wait();
 
-        expect(deployedName).to.equal("Valid Expense Submission");
-    });
+    let events = await getLogs(this.expenseSubmissionFactory.address);
+    let revShareABI = require(path.resolve(
+      __dirname,
+      "../../abi/contracts/ExpenseSubmission/ExpenseSubmission.sol/ExpenseSubmission.json"
+    ));
+    let deployedClone = new ethers.Contract(
+      events[0].cloneAddress,
+      revShareABI,
+      ethers.provider.getSigner()
+    );
+    let deployedName = await deployedClone.contractName();
 
-    it("can create a ExpenseSubmission contract and reconfigure it", async function () {
-        await this.expenseSubmissionFactory.initialize();
+    expect(deployedName).to.equal("Valid Expense Submission");
+  });
 
-        let deployedAddress = await this.expenseSubmissionFactory.createNewExpenseSubmission(this.validInput);
-        await deployedAddress.wait();
+  it("can create a ExpenseSubmission contract and reconfigure it", async function () {
+    await this.expenseSubmissionFactory.initialize();
 
-        let events = await getLogs(this.expenseSubmissionFactory.address);
-        let expenseSubmissionABI = require(path.resolve(__dirname, "../../abi/contracts/ExpenseSubmission/ExpenseSubmission.sol/ExpenseSubmission.json"))
-        let deployedClone = new ethers.Contract(events[0].cloneAddress, expenseSubmissionABI, ethers.provider.getSigner());
+    let deployedAddress = await this.expenseSubmissionFactory.createNewExpenseSubmission(
+      this.validInput
+    );
+    await deployedAddress.wait();
 
-        let initialExpenses = await deployedClone.getExpenses();
-        let initialProfitAddress = await deployedClone.profitAddress();
+    let events = await getLogs(this.expenseSubmissionFactory.address);
+    let expenseSubmissionABI = require(path.resolve(
+      __dirname,
+      "../../abi/contracts/ExpenseSubmission/ExpenseSubmission.sol/ExpenseSubmission.json"
+    ));
+    let deployedClone = new ethers.Contract(
+      events[0].cloneAddress,
+      expenseSubmissionABI,
+      ethers.provider.getSigner()
+    );
 
-        await deployedClone.reconfigure(this.validTripleExpense.expenses, this.validTripleExpense.profitAddress);
+    let initialExpenses = await deployedClone.getExpenses();
 
-        let reconfiguredExpenses = await deployedClone.getExpenses();
-        let reconfiguredProfitAddress = await deployedClone.profitAddress();
+    await deployedClone.reconfigure(this.validTripleExpense.expenses, this.validInput.profitAddress);
 
-        expect(initialExpenses.length).to.equal(1);
-        expect(reconfiguredExpenses.length).to.equal(3);
-        expect(initialProfitAddress).to.equal((await ethers.getSigners())[2].address);
-        expect(reconfiguredProfitAddress).to.equal((await ethers.getSigners())[3].address);
-    });
+    let reconfiguredExpenses = await deployedClone.getExpenses();
 
-    it("can emit correct events", async function () {
-        await this.expenseSubmissionFactory.initialize();
+    expect(initialExpenses.length).to.equal(1);
+    expect(reconfiguredExpenses.length).to.equal(3);
+  });
 
-        let deployedAddress = await this.expenseSubmissionFactory.createNewExpenseSubmission(this.validInput);
-        await deployedAddress.wait();
+  it("can emit correct events", async function () {
+    await this.expenseSubmissionFactory.initialize();
 
-        let events = await getLogs(this.expenseSubmissionFactory.address);
-        let deployAddress = (await ethers.getSigners())[0].address;
-        let profitAddress = (await ethers.getSigners())[2].address;
+    let deployedAddress = await this.expenseSubmissionFactory.createNewExpenseSubmission(
+      this.validInput
+    );
+    await deployedAddress.wait();
 
-        expect(events.length).to.equal(2);
+    let events = await getLogs(this.expenseSubmissionFactory.address);
+    let deployAddress = (await ethers.getSigners())[0].address;
+    let profitAddress = (await ethers.getSigners())[2].address;
 
-        // msg.sender
-        expect(events[0].cloneAddress).to.not.equal("0x0000000000000000000000000000000000000000");
-        expect(ethers.utils.isAddress(events[0].cloneAddress)).to.be.true;
-        expect(events[0].splitAddress).to.equal(deployAddress);
-        expect(events[0].contractName).to.equal("Valid Expense Submission");
+    expect(events.length).to.equal(2);
 
-        // profit address
-        expect(events[1].cloneAddress).to.not.equal("0x0000000000000000000000000000000000000000");
-        expect(ethers.utils.isAddress(events[1].cloneAddress)).to.be.true;
-        expect(events[1].splitAddress).to.equal(profitAddress);
-        expect(events[1].contractName).to.equal("Valid Expense Submission");
-    });
+    // msg.sender
+    expect(events[0].cloneAddress).to.not.equal(
+      "0x0000000000000000000000000000000000000000"
+    );
+    expect(ethers.utils.isAddress(events[0].cloneAddress)).to.be.true;
+    expect(events[0].splitAddress).to.equal(deployAddress);
+    expect(events[0].contractName).to.equal("Valid Expense Submission");
 
-    it("sends correct events for multiple addresses", async function () {
-        await this.expenseSubmissionFactory.initialize();
+    // profit address
+    expect(events[1].cloneAddress).to.not.equal(
+      "0x0000000000000000000000000000000000000000"
+    );
+    expect(ethers.utils.isAddress(events[1].cloneAddress)).to.be.true;
+    expect(events[1].splitAddress).to.equal(profitAddress);
+    expect(events[1].contractName).to.equal("Valid Expense Submission");
+  });
 
-        let deployedAddress = await this.expenseSubmissionFactory.createNewExpenseSubmission(this.validTripleExpense);
-        await deployedAddress.wait();
+  it("sends correct events for multiple addresses", async function () {
+    await this.expenseSubmissionFactory.initialize();
 
-        let events = await getLogs(this.expenseSubmissionFactory.address);
-        let deployAddress = (await ethers.getSigners())[0].address;
-        let profitAddress = (await ethers.getSigners())[3].address;
+    let deployedAddress = await this.expenseSubmissionFactory.createNewExpenseSubmission(
+      this.validTripleExpense
+    );
+    await deployedAddress.wait();
 
-        expect(events.length).to.equal(2);
+    let events = await getLogs(this.expenseSubmissionFactory.address);
+    let deployAddress = (await ethers.getSigners())[0].address;
+    let profitAddress = (await ethers.getSigners())[3].address;
 
-        // msg.sender
-        expect(events[0].cloneAddress).to.not.equal("0x0000000000000000000000000000000000000000");
-        expect(ethers.utils.isAddress(events[0].cloneAddress)).to.be.true;
-        expect(events[0].splitAddress).to.equal(deployAddress);
-        expect(events[0].contractName).to.equal("Valid Expense Submission 2");
+    expect(events.length).to.equal(2);
 
-        // profit address
-        expect(events[1].cloneAddress).to.not.equal("0x0000000000000000000000000000000000000000");
-        expect(ethers.utils.isAddress(events[1].cloneAddress)).to.be.true;
-        expect(events[1].splitAddress).to.equal(profitAddress);
-        expect(events[1].contractName).to.equal("Valid Expense Submission 2");
-    });
+    // msg.sender
+    expect(events[0].cloneAddress).to.not.equal(
+      "0x0000000000000000000000000000000000000000"
+    );
+    expect(ethers.utils.isAddress(events[0].cloneAddress)).to.be.true;
+    expect(events[0].splitAddress).to.equal(deployAddress);
+    expect(events[0].contractName).to.equal("Valid Expense Submission 2");
 
-    it("can update the implementation address", async function () {
-        await this.expenseSubmissionFactory.initialize();
+    // profit address
+    expect(events[1].cloneAddress).to.not.equal(
+      "0x0000000000000000000000000000000000000000"
+    );
+    expect(ethers.utils.isAddress(events[1].cloneAddress)).to.be.true;
+    expect(events[1].splitAddress).to.equal(profitAddress);
+    expect(events[1].contractName).to.equal("Valid Expense Submission 2");
+  });
 
-        let firstImplAddress = await this.expenseSubmissionFactory.implementationAddress();
-        expect(firstImplAddress).to.not.equal("0x0000000000000000000000000000000000000000");
-        expect(ethers.utils.isAddress(firstImplAddress)).to.be.true;
+  it("can update the implementation address", async function () {
+    await this.expenseSubmissionFactory.initialize();
 
-        await this.expenseSubmissionFactory.updateImplementation();
+    let firstImplAddress = await this.expenseSubmissionFactory.implementationAddress();
+    expect(firstImplAddress).to.not.equal(
+      "0x0000000000000000000000000000000000000000"
+    );
+    expect(ethers.utils.isAddress(firstImplAddress)).to.be.true;
 
-        let secondImplAddress = await this.expenseSubmissionFactory.implementationAddress();
-        expect(secondImplAddress).to.not.equal(firstImplAddress);
-        expect(ethers.utils.isAddress(secondImplAddress)).to.be.true;
+    await this.expenseSubmissionFactory.updateImplementation();
 
-    });
+    let secondImplAddress = await this.expenseSubmissionFactory.implementationAddress();
+    expect(secondImplAddress).to.not.equal(firstImplAddress);
+    expect(ethers.utils.isAddress(secondImplAddress)).to.be.true;
+  });
 });
 
 const getLogs = async (address: string) => {
-    let factoryABI = require(path.resolve(__dirname, "../../abi/contracts/ExpenseSubmission/ExpenseSubmissionFactory.sol/ExpenseSubmissionFactory.json"))
-    let contractInterface = new ethers.utils.Interface(factoryABI)
-    let events = await ethers.provider.getLogs({
-        fromBlock: 0,
-        toBlock: 'latest',
-        address: address,
-    }).then((events) => {
-        return events.map((e) => {
-            return contractInterface.parseLog(e).args
-        }).filter((events) => {
-            return events.cloneAddress;
-        });
+  let factoryABI = require(path.resolve(
+    __dirname,
+    "../../abi/contracts/ExpenseSubmission/ExpenseSubmissionFactory.sol/ExpenseSubmissionFactory.json"
+  ));
+  let contractInterface = new ethers.utils.Interface(factoryABI);
+  let events = await ethers.provider
+    .getLogs({
+      fromBlock: 0,
+      toBlock: "latest",
+      address: address,
     })
-    return events;
-}
+    .then((events) => {
+      return events
+        .map((e) => {
+          return contractInterface.parseLog(e).args;
+        })
+        .filter((events) => {
+          return events.cloneAddress;
+        });
+    });
+  return events;
+};
