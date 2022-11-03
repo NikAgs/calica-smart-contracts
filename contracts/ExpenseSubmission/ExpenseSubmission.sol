@@ -9,6 +9,7 @@ import {Expense, ExpenseSubmissionInput} from "../globals.sol";
 
 contract ExpenseSubmission is Initializable {
     Expense[] internal expenses;
+
     address payable public profitAddress;
     string public contractName;
     address public owner;

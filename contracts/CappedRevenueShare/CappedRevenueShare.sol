@@ -7,8 +7,8 @@ import {CappedSplit, Split, CappedRevenueShareInput, Payment, MAX_INT} from "../
 
 contract CappedRevenueShare is Initializable {
     CappedSplit[] internal cappedSplits;
-    bool internal isReconfigurable;
 
+    bool public isReconfigurable;
     uint256 public amountTransferred = 0;
     string public contractName;
     address public owner;

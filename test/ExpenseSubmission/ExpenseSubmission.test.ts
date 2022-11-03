@@ -5,9 +5,9 @@ import path from "path";
 const ERC20ABI = require("@uniswap/v3-core/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json")
   .abi;
 
-describe.only("ExpenseSubmission", function () {
+describe("ExpenseSubmission", function() {
   // Initialize global test variables
-  before(async function () {
+  before(async function() {
     this.ExpenseSubmission = await ethers.getContractFactory(
       "ExpenseSubmission"
     );
@@ -27,7 +27,7 @@ describe.only("ExpenseSubmission", function () {
   });
 
   // Create a brand new ExpenseSubmission contract before each test
-  beforeEach(async function () {
+  beforeEach(async function() {
     // Reset hardhat network
     await network.provider.request({
       method: "hardhat_reset",
@@ -45,7 +45,7 @@ describe.only("ExpenseSubmission", function () {
     await this.expenseSubmission.deployed();
   });
 
-  it("fails when reimbursing expenses before being initialized", async function () {
+  it("fails when reimbursing expenses before being initialized", async function() {
     await this.moneySender.sendTransaction({
       to: this.expenseSubmission.address,
       value: ethers.utils.parseEther("3"),
@@ -58,43 +58,49 @@ describe.only("ExpenseSubmission", function () {
     }
   });
 
-  it("fails when trying to reconfigure before being initialized", async function () {
+  it("fails when trying to reconfigure before being initialized", async function() {
     try {
-      await this.expenseSubmission.connect(this.owner).reconfigure([
-        {
-          name: "Adam",
-          account: this.adam.address,
-          cost: 100000n,
-          amountPaid: 0n,
-          tokenAddress: ethers.constants.AddressZero,
-          description: "Adam's expenses",
-        },
-      ], this.profitAddress);
+      await this.expenseSubmission.connect(this.owner).reconfigure(
+        [
+          {
+            name: "Adam",
+            account: this.adam.address,
+            cost: 100000n,
+            amountPaid: 0n,
+            tokenAddress: ethers.constants.AddressZero,
+            description: "Adam's expenses",
+          },
+        ],
+        this.profitAddress
+      );
     } catch (e) {
       expect(e.message).to.contain("Profit address not set");
     }
   });
 
-  it("fails to reconfigure when non-owner calls it", async function () {
+  it("fails to reconfigure when non-owner calls it", async function() {
     try {
       await initializeEthExpenses.bind(this)();
 
-      await this.expenseSubmission.connect(this.adam).reconfigure([
-        {
-          name: "Adam",
-          account: this.adam.address,
-          cost: 100000n,
-          amountPaid: 0n,
-          tokenAddress: ethers.constants.AddressZero,
-          description: "Adam's expenses",
-        },
-      ], this.profitAddress);
+      await this.expenseSubmission.connect(this.adam).reconfigure(
+        [
+          {
+            name: "Adam",
+            account: this.adam.address,
+            cost: 100000n,
+            amountPaid: 0n,
+            tokenAddress: ethers.constants.AddressZero,
+            description: "Adam's expenses",
+          },
+        ],
+        this.profitAddress
+      );
     } catch (e) {
       expect(e.message).to.contain("Only owner can reconfigure");
     }
   });
 
-  it("can initialize with no expenses", async function () {
+  it("can initialize with no expenses", async function() {
     await this.expenseSubmission.initialize(
       {
         contractName: "Failed Initialize",
@@ -105,21 +111,21 @@ describe.only("ExpenseSubmission", function () {
     );
   });
 
-  it("sets contract name correctly", async function () {
+  it("sets contract name correctly", async function() {
     await initializeEthExpenses.bind(this)();
 
     let contractName = await this.expenseSubmission.contractName();
     expect(contractName).to.equal("Valid Expense Submission");
   });
 
-  it("sets owner correctly", async function () {
+  it("sets owner correctly", async function() {
     await initializeEthExpenses.bind(this)();
 
     let owner = await this.expenseSubmission.owner();
     expect(owner).to.equal(this.owner.address);
   });
 
-  it("sets expenses correctly", async function () {
+  it("sets expenses correctly", async function() {
     await initializeEthExpenses.bind(this)();
 
     let expenses = await this.expenseSubmission.getExpenses();
@@ -139,29 +145,32 @@ describe.only("ExpenseSubmission", function () {
     expect(secondExpense.tokenAddress).to.equal(ethers.constants.AddressZero);
   });
 
-  it("sets profitAddress correctly", async function () {
+  it("sets profitAddress correctly", async function() {
     await initializeEthExpenses.bind(this)();
 
     let profitAddress = await this.expenseSubmission.profitAddress();
     expect(profitAddress).to.equal(this.profitAddress);
   });
 
-  it("can reconfigure expenses + profitAddress correctly", async function () {
+  it("can reconfigure expenses + profitAddress correctly", async function() {
     await initializeEthExpenses.bind(this, true)();
 
     let initialExpenses = await this.expenseSubmission.getExpenses();
     let initialProfitAddress = await this.expenseSubmission.profitAddress();
 
-    await this.expenseSubmission.connect(this.owner).reconfigure([
-      {
-        name: "New Adam",
-        account: this.adam.address,
-        cost: 500000n,
-        amountPaid: 0n,
-        tokenAddress: ethers.constants.AddressZero,
-        description: "Adam's expenses",
-      },
-    ], this.otherProfitAddress);
+    await this.expenseSubmission.connect(this.owner).reconfigure(
+      [
+        {
+          name: "New Adam",
+          account: this.adam.address,
+          cost: 500000n,
+          amountPaid: 0n,
+          tokenAddress: ethers.constants.AddressZero,
+          description: "Adam's expenses",
+        },
+      ],
+      this.otherProfitAddress
+    );
 
     let reconfiguredExpenses = await this.expenseSubmission.getExpenses();
     let reconfiguredProfitAddress = await this.expenseSubmission.profitAddress();
@@ -182,7 +191,7 @@ describe.only("ExpenseSubmission", function () {
     expect(reconfiguredProfitAddress).to.equal(this.otherProfitAddress);
   });
 
-  it("reimburses ETH correctly", async function () {
+  it("reimburses ETH correctly", async function() {
     await initializeEthExpenses.bind(this)();
 
     await checkETHBalance(this.expenseSubmission.address, 0n);
@@ -201,7 +210,7 @@ describe.only("ExpenseSubmission", function () {
     await checkETHBalance(this.nik.address, 10000000000000000200000n);
   });
 
-  it("reimburses ERC20 tokens correctly", async function () {
+  it("reimburses ERC20 tokens correctly", async function() {
     await initializeTokenExpenses.bind(this)();
 
     await checkTokenBalance(
@@ -255,7 +264,7 @@ describe.only("ExpenseSubmission", function () {
     await checkTokenBalance(this.nik.address, this.oceanAddress, 0n);
   });
 
-  it("pays ETH profit correctly", async function () {
+  it("pays ETH profit correctly", async function() {
     await initializeEthExpenses.bind(this)();
 
     await checkETHBalance(this.expenseSubmission.address, 0n);
@@ -278,7 +287,7 @@ describe.only("ExpenseSubmission", function () {
     await checkETHBalance(this.profitAddress, 10000000000000000500000n);
   });
 
-  it("pays ERC20 token profit correctly", async function () {
+  it("pays ERC20 token profit correctly", async function() {
     await initializeTokenExpenses.bind(this)();
 
     await checkETHBalance(this.profitAddress, 10000000000000000000000n);
@@ -304,7 +313,7 @@ describe.only("ExpenseSubmission", function () {
     await checkTokenBalance(this.profitAddress, this.oceanAddress, 1000000n);
   });
 
-  it("pays partial costs", async function () {
+  it("pays partial costs", async function() {
     await initializeEthExpenses.bind(this)();
 
     await checkETHBalance(this.expenseSubmission.address, 0n);
@@ -358,7 +367,7 @@ describe.only("ExpenseSubmission", function () {
     await checkETHBalance(this.profitAddress, 10000000000000000050000n);
   });
 
-  it("emits ETH withdraw events correctly", async function () {
+  it("emits ETH withdraw events correctly", async function() {
     await initializeEthExpenses.bind(this)();
 
     await this.moneySender.sendTransaction({
@@ -391,7 +400,7 @@ describe.only("ExpenseSubmission", function () {
     expect(events[1].timestamp).to.not.equal(events[2].timestamp);
   });
 
-  it("emits ERC20 withdraw events correctly", async function () {
+  it("emits ERC20 withdraw events correctly", async function() {
     await initializeTokenExpenses.bind(this)();
 
     await sendInitialTokens.bind(this)();

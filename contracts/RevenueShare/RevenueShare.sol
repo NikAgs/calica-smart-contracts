@@ -9,9 +9,9 @@ import {Split, RevenueShareInput} from "../globals.sol";
 
 contract RevenueShare is Initializable {
     Split[] internal splits;
-    bool internal isReconfigurable;
-    bool internal isPush;
 
+    bool public isReconfigurable;
+    bool public isPush;
     string public contractName;
     address public owner;
 
