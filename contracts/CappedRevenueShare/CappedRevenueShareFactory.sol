@@ -37,7 +37,9 @@ contract CappedRevenueShareFactory is
 
     function createNewCappedRevenueShare(
         CappedRevenueShareInput calldata input,
-        bool isReconfigurable
+        address tokenAddress,
+        bool isReconfigurable,
+        bool isPush
     ) external returns (address) {
         address memImplementationAddress = implementationAddress;
 
@@ -55,7 +57,13 @@ contract CappedRevenueShareFactory is
         CappedRevenueShare cappedRevenueShare = CappedRevenueShare(
             cloneAddress
         );
-        cappedRevenueShare.initialize(input, msg.sender, isReconfigurable);
+        cappedRevenueShare.initialize(
+            input,
+            msg.sender,
+            tokenAddress,
+            isReconfigurable,
+            isPush
+        );
 
         return cloneAddress;
     }

@@ -150,8 +150,18 @@
         "type": "tuple"
       },
       {
+        "internalType": "address",
+        "name": "tokenAddress",
+        "type": "address"
+      },
+      {
         "internalType": "bool",
         "name": "isReconfigurable",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "isPush",
         "type": "bool"
       }
     ],

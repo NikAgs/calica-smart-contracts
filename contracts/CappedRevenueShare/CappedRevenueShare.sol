@@ -3,15 +3,19 @@
 pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+
 import {CappedSplit, Split, CappedRevenueShareInput, Payment, MAX_INT} from "../globals.sol";
 
 contract CappedRevenueShare is Initializable {
     CappedSplit[] internal cappedSplits;
 
     bool public isReconfigurable;
+    bool public isPush;
     uint256 public amountTransferred = 0;
     string public contractName;
     address public owner;
+    address public tokenAddress;
 
     event Withdrawal(
         uint256 amount,
@@ -22,7 +26,9 @@ contract CappedRevenueShare is Initializable {
     function initialize(
         CappedRevenueShareInput calldata input,
         address initOwner,
-        bool initIsReconfigurable
+        address initTokenAddress,
+        bool initIsReconfigurable,
+        bool initIsPush
     ) external initializer {
         require(input.cappedSplits.length > 0, "No capped splits given");
         require(input.cappedSplits[0].cap == 0, "First cap must be 0");
@@ -30,7 +36,9 @@ contract CappedRevenueShare is Initializable {
 
         contractName = input.contractName;
         owner = initOwner;
+        tokenAddress = initTokenAddress;
         isReconfigurable = initIsReconfigurable;
+        isPush = initIsPush;
 
         validateAndUpdateCappedSplits(input.cappedSplits);
     }
@@ -65,10 +73,27 @@ contract CappedRevenueShare is Initializable {
         validateAndUpdateCappedSplits(newCappedSplits);
     }
 
+    // Pull function for withdrawing a given list of tokens. Only distribute splits for the tokenAddress of this contract.
+    // Otherwise, send the token balance to the owner.
+    function withdrawTokens(address[] calldata tokens) external {
+        for (uint256 i = 0; i < tokens.length; i++) {
+            uint256 balance = address(this).balance;
+            if (tokens[i] != address(0)) {
+                balance = IERC20Upgradeable(tokens[i]).balanceOf(address(this));
+            }
+
+            if (tokenAddress == tokens[i]) {
+                distributeCappedSplits(balance);
+            } else if (balance > 0) {
+                transfer(tokens[i], owner, balance);
+            }
+        }
+    }
+
     // Creates payment bands for each cap. For example, if caps are [0, 100, 200] then the bands are
     // [0->100], [100->200], [200->MAX_INT]. The amount given is divided among the bands by the given
     // splits and paid out at the end.
-    receive() external payable {
+    function distributeCappedSplits(uint256 balance) internal {
         CappedSplit[] memory memCappedSplits = cappedSplits;
         require(memCappedSplits.length > 0, "No splits configured");
 
@@ -76,10 +101,10 @@ contract CappedRevenueShare is Initializable {
         Payment[] memory payments = initializePayments(memCappedSplits);
 
         uint256 memAmountTransferred = amountTransferred;
-        uint256 totalAmount = msg.value + memAmountTransferred;
+        uint256 totalAmount = balance + memAmountTransferred;
         uint256 previousCap = 0;
 
-        amountTransferred += msg.value;
+        amountTransferred += balance;
 
         for (uint8 i = 1; i <= memCappedSplits.length; i++) {
             uint256 rightBand = i == memCappedSplits.length
@@ -102,6 +127,12 @@ contract CappedRevenueShare is Initializable {
         }
 
         payStakeholders(payments);
+    }
+
+    receive() external payable {
+        if (isPush && tokenAddress == address(0)) {
+            distributeCappedSplits(msg.value);
+        }
     }
 
     // Determines how much to add to the payments array for the given split band
@@ -195,11 +226,23 @@ contract CappedRevenueShare is Initializable {
                     payments[i].account,
                     timestamp
                 );
-                (bool sent, ) = payments[i].account.call{
-                    value: payments[i].amount
-                }("");
-                require(sent, "Failed to transfer");
+                transfer(tokenAddress, payments[i].account, payments[i].amount);
             }
+        }
+    }
+
+    // Sends a given amount of a token to a given address.
+    // If the transferTokenAddress is 0, then ETH is sent.
+    function transfer(
+        address transferTokenAddress,
+        address to,
+        uint256 amount
+    ) internal {
+        if (transferTokenAddress == address(0)) {
+            (bool sent, ) = to.call{value: amount}("");
+            require(sent, "Failed to transfer");
+        } else {
+            IERC20Upgradeable(transferTokenAddress).transfer(to, amount);
         }
     }
 

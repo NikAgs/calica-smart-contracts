@@ -159,14 +159,37 @@
         "type": "address"
       },
       {
+        "internalType": "address",
+        "name": "initTokenAddress",
+        "type": "address"
+      },
+      {
         "internalType": "bool",
         "name": "initIsReconfigurable",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "initIsPush",
         "type": "bool"
       }
     ],
     "name": "initialize",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "isPush",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -233,6 +256,32 @@
       }
     ],
     "name": "reconfigureCappedSplits",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "tokenAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "tokens",
+        "type": "address[]"
+      }
+    ],
+    "name": "withdrawTokens",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
