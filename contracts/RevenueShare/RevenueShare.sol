@@ -10,10 +10,10 @@ import {Split, RevenueShareInput} from "../globals.sol";
 contract RevenueShare is Initializable {
     Split[] internal splits;
 
-    bool public isReconfigurable;
-    bool public isPush;
     string public contractName;
     address public owner;
+    bool public isReconfigurable;
+    bool public isPush;
 
     event Withdrawal(
         uint256 amount,

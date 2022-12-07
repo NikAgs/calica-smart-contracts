@@ -5,7 +5,7 @@ import path from "path";
 const ERC20ABI = require("@uniswap/v3-core/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json")
   .abi;
 
-describe.only("CappedRevenueShare", function() {
+describe("CappedRevenueShare", function() {
   // Initialize global test variables
   before(async function() {
     this.CappedRevenueShare = await ethers.getContractFactory(
@@ -537,12 +537,15 @@ describe.only("CappedRevenueShare", function() {
     expect(events.length).to.equal(3);
     expect(events[0].amount).to.equal(200000000000000000000n);
     expect(events[0].account).to.equal(this.firstAccount.address);
+    expect(events[0].tokenAddress).to.equal(ethers.constants.AddressZero);
 
     expect(events[1].amount).to.equal(50000000000000000000n);
     expect(events[1].account).to.equal(this.secondAccount.address);
+    expect(events[1].tokenAddress).to.equal(ethers.constants.AddressZero);
 
     expect(events[2].amount).to.equal(50000000000000000000n);
     expect(events[2].account).to.equal(this.thirdAccount.address);
+    expect(events[2].tokenAddress).to.equal(ethers.constants.AddressZero);
 
     expect(events[0].timestamp).to.equal(events[1].timestamp);
     expect(events[1].timestamp).to.equal(events[2].timestamp);

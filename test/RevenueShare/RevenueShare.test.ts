@@ -169,6 +169,13 @@ describe("RevenueShare", function() {
     expect(secondSplit.percentage).to.equal(50000);
   });
 
+  it("sets reconfigurable correctly", async function() {
+    await initializeValidRevenueShare.bind(this)(true, true);
+
+    let reconfigurable = await this.revenueShare.isReconfigurable();
+    expect(reconfigurable).to.equal(true);
+  });
+
   it("can reconfigure splits correctly", async function() {
     await initializeValidRevenueShare.bind(this, true)();
 

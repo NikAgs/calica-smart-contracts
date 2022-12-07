@@ -10,17 +10,18 @@ import {CappedSplit, Split, CappedRevenueShareInput, Payment, MAX_INT} from "../
 contract CappedRevenueShare is Initializable {
     CappedSplit[] internal cappedSplits;
 
-    bool public isReconfigurable;
-    bool public isPush;
     uint256 public amountTransferred = 0;
     string public contractName;
     address public owner;
+    bool public isReconfigurable;
+    bool public isPush;
     address public tokenAddress;
 
     event Withdrawal(
         uint256 amount,
         address indexed account,
-        uint256 timestamp
+        uint256 timestamp,
+        address tokenAddress
     );
 
     function initialize(
@@ -224,7 +225,8 @@ contract CappedRevenueShare is Initializable {
                 emit Withdrawal(
                     payments[i].amount,
                     payments[i].account,
-                    timestamp
+                    timestamp,
+                    tokenAddress
                 );
                 transfer(tokenAddress, payments[i].account, payments[i].amount);
             }
