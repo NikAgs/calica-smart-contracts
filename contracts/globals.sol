@@ -44,3 +44,12 @@ struct ExpenseSubmissionInput {
     Expense[] expenses;
     address payable profitAddress;
 }
+
+struct TokenSwapInput {
+    string contractName;
+    address tokenIn;
+    address tokenOut;
+    address poolAddress;
+    address payable profitAddress;
+    uint256 poolFee;
+}

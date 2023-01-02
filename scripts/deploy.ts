@@ -6,13 +6,13 @@ async function main() {
 
   // await deployContract("RevenueShareFactory", network);
 
-  await updateContract(
-    "RevenueShareFactory",
-    process.env[`${network}_REVENUE_SHARE_FACTORY_ADDRESS`] as string,
-    network
-  );
+  // await updateContract(
+  //   "RevenueShareFactory",
+  //   process.env[`${network}_REVENUE_SHARE_FACTORY_ADDRESS`] as string,
+  //   network
+  // );
 
-  await new Promise((resolve) => setTimeout(resolve, 3000));
+  // await new Promise((resolve) => setTimeout(resolve, 3000));
 
   await updateContract(
     "CappedRevenueShareFactory",
@@ -20,13 +20,13 @@ async function main() {
     network
   );
 
-  await new Promise((resolve) => setTimeout(resolve, 3000));
+  // await new Promise((resolve) => setTimeout(resolve, 3000));
 
-  await updateContract(
-    "ExpenseSubmissionFactory",
-    process.env[`${network}_EXPENSE_SUBMISSION_FACTORY_ADDRESS`] as string,
-    network
-  );
+  // await updateContract(
+  //   "ExpenseSubmissionFactory",
+  //   process.env[`${network}_EXPENSE_SUBMISSION_FACTORY_ADDRESS`] as string,
+  //   network
+  // );
 }
 
 async function updateContract(name: string, address: string, network: string) {

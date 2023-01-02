@@ -14,6 +14,7 @@ contract RevenueShare is Initializable {
     address public owner;
     bool public isReconfigurable;
     bool public isPush;
+    // uint public calicaFee;
 
     event Withdrawal(
         uint256 amount,
@@ -27,7 +28,11 @@ contract RevenueShare is Initializable {
         address initOwner,
         bool initIsReconfigurable,
         bool initIsPush
-    ) external initializer {
+    )
+        external
+        // uint initCalicaFee
+        initializer
+    {
         require(input.splits.length > 0, "No splits configured");
         require(initOwner != address(0), "Owner cant be addr(0)");
 
@@ -35,6 +40,7 @@ contract RevenueShare is Initializable {
         owner = initOwner;
         isReconfigurable = initIsReconfigurable;
         isPush = initIsPush;
+        // calicaFee = initCalicaFee;
 
         validateAndUpdateSplits(input.splits);
     }
@@ -80,6 +86,8 @@ contract RevenueShare is Initializable {
     function distributeSplits(address token, uint256 amount) internal {
         Split[] memory memSplits = splits;
         require(memSplits.length > 0, "No splits configured");
+
+        // uint calicaAmount = (amount * calicaFee) / 1e5;
 
         // solhint-disable-next-line not-rely-on-time
         uint256 timestamp = block.timestamp;

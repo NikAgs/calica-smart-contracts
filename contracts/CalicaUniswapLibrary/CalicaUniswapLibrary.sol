@@ -15,7 +15,7 @@ library CalicaUniswapLibrary {
 
     // Executes batch swaps using Uniswap V3
     function performSwaps(ISwapRouter.ExactInputSingleParams[] calldata params)
-        external
+        public
         returns (uint256[] memory)
     {
         // TODO: Combine duplicate swaps
