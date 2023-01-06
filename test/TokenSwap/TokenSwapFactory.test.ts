@@ -2,18 +2,21 @@ import { expect } from "chai";
 import { ethers, network } from "hardhat";
 import path from "path";
 
-describe.only("TokenSwapFactory", function() {
+describe("TokenSwapFactory", function() {
   // Initialize global test variables
   before(async function() {
     this.TokenSwapFactory = await ethers.getContractFactory("TokenSwapFactory");
+
+    this.daiAddress = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
+    this.wethAddress = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+    this.usdcAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
 
     this.signers = await ethers.getSigners();
 
     this.validInput = {
       contractName: "Valid Token Swap",
-      tokenIn: "0x0000000000000000000000000000000000000000",
-      tokenOut: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      poolAddress: "0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640",
+      tokenIn: this.wethAddress,
+      tokenOut: this.usdcAddress,
       profitAddress: this.signers[1].address,
       poolFee: 500,
     };
@@ -21,7 +24,19 @@ describe.only("TokenSwapFactory", function() {
 
   // Create a brand new TokenSwap contract before each test
   beforeEach(async function() {
-    await network.provider.send("hardhat_reset");
+    // Reset hardhat network
+    await network.provider.request({
+      method: "hardhat_reset",
+      params: [
+        {
+          forking: {
+            jsonRpcUrl: process.env["ETHEREUM_ALCHEMY_URL"] as string,
+            blockNumber: 15792160,
+          },
+        },
+      ],
+    });
+
     this.tokenSwapFactory = await this.TokenSwapFactory.deploy();
     await this.tokenSwapFactory.deployed();
   });
@@ -34,6 +49,7 @@ describe.only("TokenSwapFactory", function() {
         true,
         0
       );
+      expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.contain("Must be initialized first");
     }
@@ -65,7 +81,7 @@ describe.only("TokenSwapFactory", function() {
     expect(deployedName).to.equal("Valid Token Swap");
   });
 
-  it("can create a TokenSwap contract and change profit address", async function() {
+  it("can create a TokenSwap contract and reconfigure it", async function() {
     await this.tokenSwapFactory.initialize();
 
     let deployedAddress = await this.tokenSwapFactory.createNewTokenSwap(
@@ -88,13 +104,33 @@ describe.only("TokenSwapFactory", function() {
     );
 
     let initialProfitAddress = await deployedClone.profitAddress();
+    let initialTokenIn = await deployedClone.tokenIn();
+    let initialTokenOut = await deployedClone.tokenOut();
+    let initialPoolFee = await deployedClone.poolFee();
 
-    await deployedClone.reconfigureProfitAddress(this.signers[2].address);
+    await deployedClone.reconfigure(
+      this.signers[2].address,
+      this.usdcAddress,
+      this.daiAddress,
+      500
+    );
 
     let updatedProfitAddress = await deployedClone.profitAddress();
+    let updatedTokenIn = await deployedClone.tokenIn();
+    let updatedTokenOut = await deployedClone.tokenOut();
+    let updatedPoolFee = await deployedClone.poolFee();
 
     expect(initialProfitAddress).to.equal(this.signers[1].address);
     expect(updatedProfitAddress).to.equal(this.signers[2].address);
+
+    expect(initialTokenIn).to.equal(this.wethAddress);
+    expect(updatedTokenIn).to.equal(this.usdcAddress);
+
+    expect(initialTokenOut).to.equal(this.usdcAddress);
+    expect(updatedTokenOut).to.equal(this.daiAddress);
+
+    expect(initialPoolFee).to.equal(500);
+    expect(updatedPoolFee).to.equal(500);
   });
 
   it("can emit a correct event", async function() {

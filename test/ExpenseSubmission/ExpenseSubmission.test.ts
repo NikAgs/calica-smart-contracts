@@ -53,6 +53,7 @@ describe("ExpenseSubmission", function() {
 
     try {
       await this.expenseSubmission.connect(this.owner).reimburseExpenses([0]);
+      expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.contain("Profit address not set");
     }
@@ -73,6 +74,7 @@ describe("ExpenseSubmission", function() {
         ],
         this.profitAddress
       );
+      expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.contain("Profit address not set");
     }
@@ -95,6 +97,7 @@ describe("ExpenseSubmission", function() {
         ],
         this.profitAddress
       );
+      expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.contain("Only owner can reconfigure");
     }

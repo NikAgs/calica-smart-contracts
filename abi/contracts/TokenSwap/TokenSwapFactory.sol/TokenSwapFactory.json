@@ -121,19 +121,14 @@
             "type": "address"
           },
           {
-            "internalType": "address",
-            "name": "poolAddress",
-            "type": "address"
-          },
-          {
             "internalType": "address payable",
             "name": "profitAddress",
             "type": "address"
           },
           {
-            "internalType": "uint256",
+            "internalType": "uint24",
             "name": "poolFee",
-            "type": "uint256"
+            "type": "uint24"
           }
         ],
         "internalType": "struct TokenSwapInput",
@@ -151,9 +146,9 @@
         "type": "bool"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint24",
         "name": "calicaFee",
-        "type": "uint256"
+        "type": "uint24"
       }
     ],
     "name": "createNewTokenSwap",

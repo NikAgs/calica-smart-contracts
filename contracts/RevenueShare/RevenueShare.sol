@@ -69,6 +69,8 @@ contract RevenueShare is Initializable {
 
     // Pull function for withdrawing a given list of tokens
     function withdrawTokens(address[] calldata tokens) external {
+        require(msg.sender == owner, "Only owner can withdraw");
+
         for (uint256 i = 0; i < tokens.length; i++) {
             uint256 balance = address(this).balance;
             if (tokens[i] != address(0)) {

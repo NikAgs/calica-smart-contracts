@@ -39,7 +39,7 @@ contract TokenSwapFactory is
         TokenSwapInput calldata input,
         bool isReconfigurable,
         bool isPush,
-        uint256 calicaFee
+        uint24 calicaFee
     ) external returns (address) {
         address memImplementationAddress = implementationAddress;
 

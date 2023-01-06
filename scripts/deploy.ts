@@ -4,7 +4,7 @@ import { ethers, upgrades, hardhatArguments } from "hardhat";
 async function main() {
   let network = hardhatArguments.network?.toUpperCase() as string;
 
-  // await deployContract("RevenueShareFactory", network);
+  await deployContract("TokenSwapFactory", network);
 
   // await updateContract(
   //   "RevenueShareFactory",
@@ -14,11 +14,19 @@ async function main() {
 
   // await new Promise((resolve) => setTimeout(resolve, 3000));
 
-  await updateContract(
-    "CappedRevenueShareFactory",
-    process.env[`${network}_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS`] as string,
-    network
-  );
+  // await updateContract(
+  //   "CappedRevenueShareFactory",
+  //   process.env[`${network}_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS`] as string,
+  //   network
+  // );
+
+  // await new Promise((resolve) => setTimeout(resolve, 3000));
+
+  // await updateContract(
+  //   "ExpenseSubmissionFactory",
+  //   process.env[`${network}_EXPENSE_SUBMISSION_FACTORY_ADDRESS`] as string,
+  //   network
+  // );
 
   // await new Promise((resolve) => setTimeout(resolve, 3000));
 

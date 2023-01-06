@@ -1,5 +1,10 @@
 [
   {
+    "inputs": [],
+    "name": "T",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -45,12 +50,64 @@
   },
   {
     "inputs": [],
+    "name": "CALICA_FEE_ADDRESS",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "SWAP_ROUTER",
+    "outputs": [
+      {
+        "internalType": "contract ISwapRouter",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "UNISWAP_FACTORY",
+    "outputs": [
+      {
+        "internalType": "contract IUniswapV3Factory",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "WETH9",
+    "outputs": [
+      {
+        "internalType": "contract IWETH9",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "calicaFee",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint24",
         "name": "",
-        "type": "uint256"
+        "type": "uint24"
       }
     ],
     "stateMutability": "view",
@@ -89,19 +146,14 @@
             "type": "address"
           },
           {
-            "internalType": "address",
-            "name": "poolAddress",
-            "type": "address"
-          },
-          {
             "internalType": "address payable",
             "name": "profitAddress",
             "type": "address"
           },
           {
-            "internalType": "uint256",
+            "internalType": "uint24",
             "name": "poolFee",
-            "type": "uint256"
+            "type": "uint24"
           }
         ],
         "internalType": "struct TokenSwapInput",
@@ -124,9 +176,9 @@
         "type": "bool"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint24",
         "name": "initCalicaFee",
-        "type": "uint256"
+        "type": "uint24"
       }
     ],
     "name": "initialize",
@@ -191,9 +243,9 @@
     "name": "poolFee",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint24",
         "name": "",
-        "type": "uint256"
+        "type": "uint24"
       }
     ],
     "stateMutability": "view",
@@ -218,22 +270,31 @@
         "internalType": "address payable",
         "name": "newProfitAddress",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "newTokenIn",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "newTokenOut",
+        "type": "address"
+      },
+      {
+        "internalType": "uint24",
+        "name": "newFee",
+        "type": "uint24"
       }
     ],
-    "name": "reconfigureProfitAddress",
+    "name": "reconfigure",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address[]",
-        "name": "tokens",
-        "type": "address[]"
-      }
-    ],
-    "name": "swapAndDistributeTokens",
+    "inputs": [],
+    "name": "swap",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

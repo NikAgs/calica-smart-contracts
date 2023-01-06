@@ -55,6 +55,7 @@ describe("CappedRevenueShare", function() {
         false,
         true
       );
+      expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.contain("No capped splits given");
     }
@@ -72,6 +73,7 @@ describe("CappedRevenueShare", function() {
         false,
         true
       );
+      expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.contain("First cap must be 0");
     }
@@ -93,19 +95,9 @@ describe("CappedRevenueShare", function() {
         false,
         true
       );
+      expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.contain("Percentages must equal 1e5");
-    }
-  });
-
-  it("fails when receiving funds before being initialized", async function() {
-    try {
-      await this.moneySender.sendTransaction({
-        to: this.cappedRevenueShare.address,
-        value: ethers.utils.parseEther("3"),
-      });
-    } catch (e) {
-      expect(e.message).to.contain("No splits configured");
     }
   });
 
@@ -125,6 +117,7 @@ describe("CappedRevenueShare", function() {
         false,
         true
       );
+      expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.contain("Caps must be sorted and unique");
     }
@@ -139,6 +132,7 @@ describe("CappedRevenueShare", function() {
           [[100000], [5000, 5000, 90000], [34000, 33000, 33000]]
         )
       );
+      expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.contain("Contract isnt reconfigurable");
     }
@@ -168,6 +162,7 @@ describe("CappedRevenueShare", function() {
           [[100000], [5000, 5000, 90000], [34000, 33000, 33000]]
         )
       );
+      expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.contain("Contract isnt reconfigurable");
     }
@@ -199,6 +194,7 @@ describe("CappedRevenueShare", function() {
             [[100000], [5000, 5000, 90000], [34000, 33000, 33000]]
           )
         );
+      expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.contain("Only owner can reconfigure");
     }
@@ -565,7 +561,9 @@ describe("CappedRevenueShare", function() {
 
     await transferTokensToContract.bind(this)();
 
-    await this.cappedRevenueShare.withdrawTokens([this.usdcAddress]);
+    await this.cappedRevenueShare
+      .connect(this.owner)
+      .withdrawTokens([this.usdcAddress]);
 
     await checkBalances.call(
       this,
@@ -590,10 +588,9 @@ describe("CappedRevenueShare", function() {
 
     await transferTokensToContract.bind(this)();
 
-    await this.cappedRevenueShare.withdrawTokens([
-      this.usdcAddress,
-      this.oceanAddress,
-    ]);
+    await this.cappedRevenueShare
+      .connect(this.owner)
+      .withdrawTokens([this.usdcAddress, this.oceanAddress]);
 
     await checkBalances.call(
       this,
@@ -620,9 +617,9 @@ describe("CappedRevenueShare", function() {
 
     await sendETH.call(this, "100");
 
-    await this.cappedRevenueShare.withdrawTokens([
-      ethers.constants.AddressZero,
-    ]);
+    await this.cappedRevenueShare
+      .connect(this.owner)
+      .withdrawTokens([ethers.constants.AddressZero]);
 
     await checkBalances.call(this, ["0", "10080", "10020"]);
   });

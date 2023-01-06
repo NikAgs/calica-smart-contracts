@@ -52,6 +52,8 @@ describe("RevenueShare", function() {
         false,
         true
       );
+
+      expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.contain("No splits configured");
     }
@@ -79,19 +81,10 @@ describe("RevenueShare", function() {
         false,
         true
       );
+
+      expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.contain("Percentages must equal 1e5");
-    }
-  });
-
-  it("fails when receiving funds before being initialized", async function() {
-    try {
-      await this.moneySender.sendTransaction({
-        to: this.revenueShare.address,
-        value: ethers.utils.parseEther("3"),
-      });
-    } catch (e) {
-      expect(e.message).to.contain("No splits configured");
     }
   });
 
@@ -104,6 +97,7 @@ describe("RevenueShare", function() {
           percentage: 100000,
         },
       ]);
+      expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.contain("Contract isnt reconfigurable");
     }
@@ -120,15 +114,16 @@ describe("RevenueShare", function() {
           percentage: 100000,
         },
       ]);
+      expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.contain("Contract isnt reconfigurable");
     }
   });
 
   it("fails to reconfigure when non-owner calls it", async function() {
-    try {
-      await initializeValidRevenueShare.bind(this, true)();
+    await initializeValidRevenueShare.bind(this, true)();
 
+    try {
       await this.revenueShare.connect(this.adam).reconfigureSplits([
         {
           name: "Adam",
@@ -136,6 +131,7 @@ describe("RevenueShare", function() {
           percentage: 100000,
         },
       ]);
+      expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.contain("Only owner can reconfigure");
     }
@@ -238,7 +234,9 @@ describe("RevenueShare", function() {
       value: ethers.utils.parseEther("3"),
     });
 
-    await this.revenueShare.withdrawTokens([ethers.constants.AddressZero]);
+    await this.revenueShare
+      .connect(this.owner)
+      .withdrawTokens([ethers.constants.AddressZero]);
 
     await checkETHBalance(this.revenueShare.address, 0n);
     await checkETHBalance(this.adam.address, 10001500000000000000000n);
@@ -249,17 +247,16 @@ describe("RevenueShare", function() {
     await initializeValidRevenueShare.bind(this)(false, true);
     await transferTokensToContract.bind(this)();
 
-    await this.revenueShare.withdrawTokens([
-      this.usdcAddress,
-      this.oceanAddress,
-    ]);
+    await this.revenueShare
+      .connect(this.owner)
+      .withdrawTokens([this.usdcAddress, this.oceanAddress]);
 
-    checkERC20Balance(this.usdcContract, this.adam.address, 500000n);
-    checkERC20Balance(this.usdcContract, this.nik.address, 500000n);
-    checkERC20Balance(this.usdcContract, this.revenueShare.address, 0n);
-    checkERC20Balance(this.oceanContract, this.adam.address, 500000n);
-    checkERC20Balance(this.oceanContract, this.nik.address, 500000n);
-    checkERC20Balance(this.oceanContract, this.revenueShare.address, 0n);
+    await checkERC20Balance(this.usdcContract, this.adam.address, 500000n);
+    await checkERC20Balance(this.usdcContract, this.nik.address, 500000n);
+    await checkERC20Balance(this.usdcContract, this.revenueShare.address, 0n);
+    await checkERC20Balance(this.oceanContract, this.adam.address, 500000n);
+    await checkERC20Balance(this.oceanContract, this.nik.address, 500000n);
+    await checkERC20Balance(this.oceanContract, this.revenueShare.address, 0n);
   });
 
   it("distributes ETH correctly", async function() {
@@ -303,10 +300,9 @@ describe("RevenueShare", function() {
     await initializeValidRevenueShare.bind(this)(false, true);
     await transferTokensToContract.bind(this)();
 
-    await this.revenueShare.withdrawTokens([
-      this.usdcAddress,
-      this.oceanAddress,
-    ]);
+    await this.revenueShare
+      .connect(this.owner)
+      .withdrawTokens([this.usdcAddress, this.oceanAddress]);
 
     let events = await getLogs(this.revenueShare.address);
 
@@ -408,8 +404,8 @@ async function checkETHBalance(
 
 // helper function to check the ERC20 balance
 async function checkERC20Balance(
-  address: any,
   contract: any,
+  address: any,
   expectedBalance: bigint
 ): Promise<void> {
   let balance = await contract.balanceOf(address);

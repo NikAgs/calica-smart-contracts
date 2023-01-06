@@ -77,6 +77,7 @@ describe("CappedRevenueShareFactory", function() {
         false,
         true
       );
+      expect(false).to.be.true;
     } catch (e) {
       expect(e.message).to.contain("Must be initialized first");
     }

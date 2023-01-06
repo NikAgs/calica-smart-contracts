@@ -77,6 +77,8 @@ contract CappedRevenueShare is Initializable {
     // Pull function for withdrawing a given list of tokens. Only distribute splits for the tokenAddress of this contract.
     // Otherwise, send the token balance to the owner.
     function withdrawTokens(address[] calldata tokens) external {
+        require(msg.sender == owner, "Only owner can withdraw");
+
         for (uint256 i = 0; i < tokens.length; i++) {
             uint256 balance = address(this).balance;
             if (tokens[i] != address(0)) {
