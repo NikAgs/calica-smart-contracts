@@ -49,6 +49,8 @@ struct TokenSwapInput {
     string contractName;
     address tokenIn;
     address tokenOut;
+    address wethAddress;
     address payable profitAddress;
     uint24 poolFee;
+    uint24 slippage;
 }

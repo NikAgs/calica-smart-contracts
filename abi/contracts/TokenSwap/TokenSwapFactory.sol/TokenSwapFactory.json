@@ -121,6 +121,11 @@
             "type": "address"
           },
           {
+            "internalType": "address",
+            "name": "wethAddress",
+            "type": "address"
+          },
+          {
             "internalType": "address payable",
             "name": "profitAddress",
             "type": "address"
@@ -128,6 +133,11 @@
           {
             "internalType": "uint24",
             "name": "poolFee",
+            "type": "uint24"
+          },
+          {
+            "internalType": "uint24",
+            "name": "slippage",
             "type": "uint24"
           }
         ],

@@ -19,8 +19,8 @@ contract TokenSwap is Initializable {
         ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
     IUniswapV3Factory public constant UNISWAP_FACTORY =
         IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
-    IWETH9 public constant WETH9 =
-        IWETH9(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
+
+    IWETH9 public weth9;
 
     string public contractName;
 
@@ -34,11 +34,12 @@ contract TokenSwap is Initializable {
 
     uint24 public poolFee;
     uint24 public calicaFee;
+    uint24 public slippage;
 
     bool public isReconfigurable;
     bool public isPush;
 
-    bool internal isSwapping = false;
+    bool internal isSwapping;
 
     event Withdrawal(
         uint256 amount,
@@ -56,9 +57,11 @@ contract TokenSwap is Initializable {
     ) external initializer {
         require(initOwner != address(0), "Owner cant be addr(0)");
 
+        weth9 = IWETH9(input.wethAddress);
+
         poolAddress = UNISWAP_FACTORY.getPool(
-            input.tokenIn == address(0) ? address(WETH9) : input.tokenIn,
-            input.tokenOut == address(0) ? address(WETH9) : input.tokenOut,
+            input.tokenIn == address(0) ? address(weth9) : input.tokenIn,
+            input.tokenOut == address(0) ? address(weth9) : input.tokenOut,
             input.poolFee
         );
         require(poolAddress != address(0), "Invalid Uniswap pool");
@@ -72,6 +75,9 @@ contract TokenSwap is Initializable {
         calicaFee = initCalicaFee;
         isReconfigurable = initIsReconfigurable;
         isPush = initIsPush;
+        slippage = input.slippage;
+
+        isSwapping = false;
     }
 
     function reconfigure(
@@ -84,8 +90,8 @@ contract TokenSwap is Initializable {
         require(msg.sender == owner, "Only owner can reconfigure");
 
         poolAddress = UNISWAP_FACTORY.getPool(
-            newTokenIn == address(0) ? address(WETH9) : newTokenIn,
-            newTokenOut == address(0) ? address(WETH9) : newTokenOut,
+            newTokenIn == address(0) ? address(weth9) : newTokenIn,
+            newTokenOut == address(0) ? address(weth9) : newTokenOut,
             newFee
         );
         require(poolAddress != address(0), "Invalid Uniswap pool");
@@ -130,13 +136,15 @@ contract TokenSwap is Initializable {
         uint256 calicaFeeAmount = (balance * calicaFee) / 1e5;
         balance -= calicaFeeAmount;
 
-        transfer(tokenIn, CALICA_FEE_ADDRESS, calicaFeeAmount);
-        emit Withdrawal(
-            calicaFeeAmount,
-            CALICA_FEE_ADDRESS,
-            timestamp,
-            tokenIn
-        );
+        if (calicaFeeAmount > 0) {
+            transfer(tokenIn, CALICA_FEE_ADDRESS, calicaFeeAmount);
+            emit Withdrawal(
+                calicaFeeAmount,
+                CALICA_FEE_ADDRESS,
+                timestamp,
+                tokenIn
+            );
+        }
 
         uint256 amountOutMinimum = calculateAmountOutMinimum(balance);
 
@@ -146,7 +154,7 @@ contract TokenSwap is Initializable {
                 tokenOut: tokenOut,
                 fee: poolFee,
                 recipient: profitAddress,
-                deadline: timestamp, // TODO: What is a good deadline?
+                deadline: timestamp + 60, // TODO: What is a good deadline?
                 amountIn: balance,
                 amountOutMinimum: amountOutMinimum,
                 sqrtPriceLimitX96: 0
@@ -158,13 +166,13 @@ contract TokenSwap is Initializable {
         // Treat address(0) as ETH
         if (tokenIn == address(0)) {
             // Wrap ETH
-            params.tokenIn = address(WETH9);
-            WETH9.deposit{value: params.amountIn}();
+            params.tokenIn = address(weth9);
+            weth9.deposit{value: params.amountIn}();
         }
         if (tokenOut == address(0)) {
             unwrapEth = true;
             unwrapEthRecipient = params.recipient;
-            params.tokenOut = address(WETH9);
+            params.tokenOut = address(weth9);
             params.recipient = address(this);
         }
 
@@ -177,7 +185,7 @@ contract TokenSwap is Initializable {
         try SWAP_ROUTER.exactInputSingle(params) returns (uint256 amountOut) {
             // Unwrap WETH9 and transfer to recipient
             if (unwrapEth) {
-                WETH9.withdraw(amountOut);
+                weth9.withdraw(amountOut);
                 TransferHelper.safeTransferETH(unwrapEthRecipient, amountOut);
             }
 
@@ -191,7 +199,7 @@ contract TokenSwap is Initializable {
             );
         } catch {
             if (tokenIn == address(0)) {
-                WETH9.withdraw(params.amountIn);
+                weth9.withdraw(params.amountIn);
             }
         }
 
@@ -230,7 +238,7 @@ contract TokenSwap is Initializable {
         uint256 expectedAmountOut;
 
         address wrappedTokenIn = tokenIn == address(0)
-            ? address(WETH9)
+            ? address(weth9)
             : tokenIn;
 
         if (wrappedTokenIn == token0) {

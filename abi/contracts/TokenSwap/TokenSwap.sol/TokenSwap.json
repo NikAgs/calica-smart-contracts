@@ -89,19 +89,6 @@
   },
   {
     "inputs": [],
-    "name": "WETH9",
-    "outputs": [
-      {
-        "internalType": "contract IWETH9",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "calicaFee",
     "outputs": [
       {
@@ -146,6 +133,11 @@
             "type": "address"
           },
           {
+            "internalType": "address",
+            "name": "wethAddress",
+            "type": "address"
+          },
+          {
             "internalType": "address payable",
             "name": "profitAddress",
             "type": "address"
@@ -153,6 +145,11 @@
           {
             "internalType": "uint24",
             "name": "poolFee",
+            "type": "uint24"
+          },
+          {
+            "internalType": "uint24",
+            "name": "slippage",
             "type": "uint24"
           }
         ],
@@ -294,6 +291,19 @@
   },
   {
     "inputs": [],
+    "name": "slippage",
+    "outputs": [
+      {
+        "internalType": "uint24",
+        "name": "",
+        "type": "uint24"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "swap",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -318,6 +328,19 @@
     "outputs": [
       {
         "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "weth9",
+    "outputs": [
+      {
+        "internalType": "contract IWETH9",
         "name": "",
         "type": "address"
       }

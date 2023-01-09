@@ -4,37 +4,45 @@ import { ethers, upgrades, hardhatArguments } from "hardhat";
 async function main() {
   let network = hardhatArguments.network?.toUpperCase() as string;
 
-  await deployContract("TokenSwapFactory", network);
+  // await deployContract("TokenSwapFactory", network);
 
-  // await updateContract(
-  //   "RevenueShareFactory",
-  //   process.env[`${network}_REVENUE_SHARE_FACTORY_ADDRESS`] as string,
-  //   network
-  // );
+  await updateContract(
+    "RevenueShareFactory",
+    process.env[`${network}_REVENUE_SHARE_FACTORY_ADDRESS`] as string,
+    network
+  );
 
-  // await new Promise((resolve) => setTimeout(resolve, 3000));
+  await new Promise((resolve) => setTimeout(resolve, 3000));
 
-  // await updateContract(
-  //   "CappedRevenueShareFactory",
-  //   process.env[`${network}_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS`] as string,
-  //   network
-  // );
+  await updateContract(
+    "CappedRevenueShareFactory",
+    process.env[`${network}_CAPPED_REVENUE_SHARE_FACTORY_ADDRESS`] as string,
+    network
+  );
 
-  // await new Promise((resolve) => setTimeout(resolve, 3000));
+  await new Promise((resolve) => setTimeout(resolve, 3000));
 
-  // await updateContract(
-  //   "ExpenseSubmissionFactory",
-  //   process.env[`${network}_EXPENSE_SUBMISSION_FACTORY_ADDRESS`] as string,
-  //   network
-  // );
+  await updateContract(
+    "ExpenseSubmissionFactory",
+    process.env[`${network}_EXPENSE_SUBMISSION_FACTORY_ADDRESS`] as string,
+    network
+  );
 
-  // await new Promise((resolve) => setTimeout(resolve, 3000));
+  await new Promise((resolve) => setTimeout(resolve, 3000));
 
-  // await updateContract(
-  //   "ExpenseSubmissionFactory",
-  //   process.env[`${network}_EXPENSE_SUBMISSION_FACTORY_ADDRESS`] as string,
-  //   network
-  // );
+  await updateContract(
+    "ExpenseSubmissionFactory",
+    process.env[`${network}_EXPENSE_SUBMISSION_FACTORY_ADDRESS`] as string,
+    network
+  );
+
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+
+  await updateContract(
+    "TokenSwapFactory",
+    process.env[`${network}_TOKEN_SWAP_FACTORY_ADDRESS`] as string,
+    network
+  );
 }
 
 async function updateContract(name: string, address: string, network: string) {

@@ -52,9 +52,10 @@ describe.only("TokenSwap", function() {
           contractName: "Invalid Token Swap",
           tokenIn: ethers.constants.AddressZero,
           tokenOut: "0x99BB44964caEb93bC862a60b89173b934d99bAE7", // Random Address
-          //   poolAddress: "0x0000000000000000000000000000000000000000",
           profitAddress: this.profitAddress.address,
           poolFee: 500,
+          slippage: 0,
+          wethAddress: this.wethAddress,
         },
         this.owner.address,
         false,
@@ -151,6 +152,8 @@ describe.only("TokenSwap", function() {
     let isPush = await this.tokenSwap.isPush();
     let owner = await this.tokenSwap.owner();
     let calicaFee = await this.tokenSwap.calicaFee();
+    let slippage = await this.tokenSwap.slippage();
+    let wethAddress = await this.tokenSwap.weth9();
 
     expect(contractName).to.equal("Valid Token Swap");
     expect(tokenIn).to.equal(ethers.constants.AddressZero);
@@ -161,6 +164,8 @@ describe.only("TokenSwap", function() {
     expect(isPush).to.equal(true);
     expect(owner).to.equal(this.owner.address);
     expect(calicaFee).to.equal(0);
+    expect(slippage).to.equal(0);
+    expect(wethAddress).to.equal(this.wethAddress);
 
     expect(poolAddress).to.equal("0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640");
   });
@@ -248,6 +253,8 @@ describe.only("TokenSwap", function() {
         tokenOut: this.oceanAddress,
         profitAddress: this.profitAddress.address,
         poolFee: 3000,
+        slippage: 0,
+        wethAddress: this.wethAddress,
       },
       this.owner.address,
       false,
@@ -278,6 +285,8 @@ describe.only("TokenSwap", function() {
         tokenOut: ethers.constants.AddressZero,
         profitAddress: this.profitAddress.address,
         poolFee: 500,
+        slippage: 0,
+        wethAddress: this.wethAddress,
       },
       this.owner.address,
       false,
@@ -364,6 +373,8 @@ describe.only("TokenSwap", function() {
         tokenOut: this.usdcAddress,
         profitAddress: this.profitAddress.address,
         poolFee: 500,
+        slippage: 0,
+        wethAddress: this.wethAddress,
       },
       this.owner.address,
       reconfigurable,
