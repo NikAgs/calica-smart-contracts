@@ -311,7 +311,7 @@ describe.only("TokenSwap", function() {
   });
 
   it("pays out calica fee", async function() {
-    await initializeValidTokenSwap.bind(this)(false, true, 1000);
+    await initializeValidTokenSwap.bind(this)(false, true, 100);
 
     await checkETHBalance(this.tokenSwap.address, 0n);
     await checkETHBalance(this.profitAddress.address, 10000000000000000000000n);
@@ -341,7 +341,7 @@ describe.only("TokenSwap", function() {
   });
 
   it("emits withdraw events correctly", async function() {
-    await initializeValidTokenSwap.bind(this)(false, true, 1000);
+    await initializeValidTokenSwap.bind(this)(false, true, 100);
 
     await this.moneySender.sendTransaction({
       to: this.tokenSwap.address,

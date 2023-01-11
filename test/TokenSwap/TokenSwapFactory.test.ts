@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { ethers, network } from "hardhat";
 import path from "path";
 
-describe("TokenSwapFactory", function() {
+describe.only("TokenSwapFactory", function() {
   // Initialize global test variables
   before(async function() {
     this.TokenSwapFactory = await ethers.getContractFactory("TokenSwapFactory");
@@ -19,6 +19,8 @@ describe("TokenSwapFactory", function() {
       tokenOut: this.usdcAddress,
       profitAddress: this.signers[1].address,
       poolFee: 500,
+      slippage: 0,
+      wethAddress: this.wethAddress,
     };
   });
 

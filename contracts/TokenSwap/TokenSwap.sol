@@ -133,7 +133,7 @@ contract TokenSwap is Initializable {
 
         // solhint-disable-next-line not-rely-on-time
         uint256 timestamp = block.timestamp;
-        uint256 calicaFeeAmount = (balance * calicaFee) / 1e5;
+        uint256 calicaFeeAmount = (balance * calicaFee) / 10000;
         balance -= calicaFeeAmount;
 
         if (calicaFeeAmount > 0) {
@@ -251,8 +251,8 @@ contract TokenSwap is Initializable {
                 : balance * token1Price;
         }
 
-        // Allow for 0.5% slippage
-        return FullMath.mulDiv(expectedAmountOut, 995, 1000);
+        // Allow for slippage
+        return FullMath.mulDiv(expectedAmountOut, slippage, 10000);
     }
 
     // Sends a given amount of a token to a given address.
