@@ -4,7 +4,7 @@ import { ethers, upgrades, hardhatArguments } from "hardhat";
 async function main() {
   let network = hardhatArguments.network?.toUpperCase() as string;
 
-  // await deployContract("TokenSwapFactory", network);
+  await deployContract("TokenSwapFactory", network);
 
   // await updateContract(
   //   "RevenueShareFactory",
@@ -38,11 +38,11 @@ async function main() {
 
   // await new Promise((resolve) => setTimeout(resolve, 3000));
 
-  await updateContract(
-    "TokenSwapFactory",
-    process.env[`${network}_TOKEN_SWAP_FACTORY_ADDRESS`] as string,
-    network
-  );
+  // await updateContract(
+  //   "TokenSwapFactory",
+  //   process.env[`${network}_TOKEN_SWAP_FACTORY_ADDRESS`] as string,
+  //   network
+  // );
 }
 
 async function updateContract(name: string, address: string, network: string) {
@@ -54,7 +54,7 @@ async function updateContract(name: string, address: string, network: string) {
     // Sometimes needed if .openzeppelin files aren't up to date
     await upgrades.forceImport(address, contract);
     console.log("Force import necessary");
-  } catch (err) {}
+  } catch (err) { }
 
   await upgrades.upgradeProxy(address, contract, {
     call: {
