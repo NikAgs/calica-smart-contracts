@@ -5,7 +5,7 @@ import path from "path";
 const ERC20ABI = require("@uniswap/v3-core/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json")
   .abi;
 
-describe.only("TokenSwap", function() {
+describe("TokenSwap", function() {
   // Initialize global test variables
   before(async function() {
     this.TokenSwap = await ethers.getContractFactory("TokenSwap");

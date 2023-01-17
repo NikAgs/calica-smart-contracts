@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { ethers, network } from "hardhat";
 import path from "path";
 
-describe.only("TokenSwapFactory", function() {
+describe("TokenSwapFactory", function() {
   // Initialize global test variables
   before(async function() {
     this.TokenSwapFactory = await ethers.getContractFactory("TokenSwapFactory");
