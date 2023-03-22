@@ -43,7 +43,7 @@ const config: HardhatUserConfig = {
     ethereum: {
       url: process.env["ETHEREUM_ALCHEMY_URL"] as string,
       accounts: [process.env["TESTNET_PRIVATE_KEY"] as string],
-      gasMultiplier: 2,
+      gasMultiplier: 1,
       timeout: 120000,
     },
     matic: {
